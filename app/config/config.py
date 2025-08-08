@@ -24,6 +24,4 @@ settings = Settings()
 print(f"Using environment file: {env_file}")
 print(f"Database Host: {settings.MYSQL_HOST}")
 print(f"Database User: {settings.MYSQL_USER}")
-print(f"Database Password: {settings.MYSQL_PASSWORD}")
-print(f"Database Name: {settings.MYSQL_DATABASE}")
 

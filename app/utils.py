@@ -9,9 +9,6 @@ pwd_context = CryptContext(
     bcrypt__ident="2b"
 )
 
-print("Password Hash ", pwd_context.hash("adMin@123"))
-
-
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
 
