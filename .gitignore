@@ -1,0 +1,4 @@
+venv-dev/
+venv-railway/
+__pycache__/
+.env
