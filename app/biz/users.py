@@ -1,5 +1,5 @@
 from .. import utils 
-from ..data.users import queryUserDB
+from ..data.usersDB import queryUserDB
 
 def validateUser(user, password: str):
     if not user or not utils.verify_password(password, user["password"]):
