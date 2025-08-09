@@ -1,4 +1,7 @@
 from . import database
+import logging
+####### Logger ############
+logger = logging.getLogger("tww.service.rolesdb")
 
 def persistRoleDB(role_name):
     conn = database.get_connection()

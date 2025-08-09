@@ -1,5 +1,8 @@
 import mysql.connector
 from ..config.config import settings
+import logging
+####### Logger ############
+logger = logging.getLogger("tww.service.database")
 
 def get_connection():
     conn = mysql.connector.connect(

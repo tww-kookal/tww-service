@@ -1,5 +1,8 @@
 from . import database
 import traceback
+import logging
+####### Logger ############
+logger = logging.getLogger("tww.service.roomsdb")
 
 def queryAllRoomsDB():
     conn = database.get_connection()
@@ -15,7 +18,7 @@ def createRoomDB(room):
     try:
         duplicateRoom = queryRoomByNameDB(room["room_name"])
         if duplicateRoom is not None:
-            print("Room Already Exists")
+            logger.info(f"Room Already Exists")
             raise Exception("Room Already Exists")
 
         cursor = conn.cursor()
@@ -26,7 +29,7 @@ def createRoomDB(room):
         conn.close()
         return True
     except Exception as e:
-        print ("Exception in createRoomDB: ", e)
+        logger.error(f"Exception in createRoomDB: {e}")
         traceback.print_exc()
         raise e
 
@@ -53,7 +56,7 @@ def queryAvailableRoomsDB(check_in, check_out, number_of_people):
         WHERE b.booking_id IS NULL
         AND %s BETWEEN r.min_capacity AND r.max_capacity
     """
-    print("Query to fetch available rooms", query)
+    logger.info(f"Query to fetch available rooms: {query}")
     cursor.execute(query, (check_out, check_in, number_of_people))
     available_rooms = cursor.fetchall()
     cursor.close()
@@ -70,3 +73,12 @@ def persistBookingDB(booking: dict):
     conn.commit()
     cursor.close()
     conn.close()
+
+def queryRolesDB():
+    conn = database.get_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT role_id, role_name FROM roles")
+    roles = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return roles

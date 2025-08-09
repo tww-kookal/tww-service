@@ -1,11 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
+import logging
 from datetime import timedelta
 from .. import utils 
 from ..config import config
 from ..biz.users import validateUser, queryUser
 
 router = APIRouter()
+####### Logger ############
+logger = logging.getLogger("tww.service.login")
 
 @router.post("/login")
 def login(form_data: OAuth2PasswordRequestForm = Depends()):

@@ -1,12 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Path
 from typing import Annotated
 import traceback
+import logging
 from fastapi.security import OAuth2PasswordBearer
 from datetime import date
 from ..auth import get_current_user
 from ..data import database
 from ..biz import roomsHelper as helper
 from .. import utils
+
+######## Logging ########
+logger = logging.getLogger("tww.service.rooms")
 
 router = APIRouter(
     prefix="/rooms",  # all routes start with /rooms
@@ -77,7 +81,7 @@ async def createRoom(room: RoomModel, current_user: dict = Depends(get_current_u
         }
 
     except Exception as e:
-        print ("Exception in createRoom: ", e)
+        logger.error (f"Exception in createRoom: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Not able to create the room")
 
 @router.get("/checkRoomAvailability/{check_in_date}/{check_out_date}/{number_of_people}", description = "Check room availability based on check-in date, check-out date and number of people")
@@ -109,6 +113,6 @@ def book_room(booking: BookingModel, current_user: str = Depends(get_current_use
         helper.bookRoom(bookingDict)
         return {"message": "Room booked successfully"}
     except Exception as e:
-        print ("Exception in book_room: ", e)
+        logger.error(f"Exception in book_room: {e}")
         traceback.print_exc()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Not able to book the room")

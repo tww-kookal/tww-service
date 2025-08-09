@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
+import logging
 from ..data import database
 from ..data.usersDB import persistUserDB, queryUserByIdDB, queryAllUsersDB, queryUserDB, assignRolesToUserDB, queryRolesForUserDB
 from typing import List
@@ -7,6 +8,9 @@ from typing import List
 from .. import utils
 from ..auth import get_current_user
 from ..utils import isAuthorized
+
+####### Logger ############
+logger = logging.getLogger("tww.service.users")
 
 router = APIRouter(
     prefix="/users",  # all routes start with /users
@@ -70,7 +74,7 @@ async def getByUsername(username: str, current_user: dict = Depends(get_current_
 
 @router.get("/list")
 async def list(current_user: dict = Depends(get_current_user)):
-    print("Current User: ", current_user)
+    logger.info(f"Current User: {current_user}")
     # Check if current user is admin    
     if isAuthorized(current_user, ["admin"]) == False:
         raise HTTPException(

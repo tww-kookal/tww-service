@@ -1,4 +1,5 @@
 import os
+import logging
 from dotenv import load_dotenv
 from pathlib import Path
 
@@ -18,10 +19,7 @@ class Settings:
     MYSQL_DATABASE = os.getenv("MYSQL_DATABASE")
     SECRET_KEY = os.getenv("SECRET_KEY")
     ALGORITHM = os.getenv("ALGORITHM")
+    LOG_LEVEL = int(os.getenv("LOG_LEVEL", 20)) 
     ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30))
 
 settings = Settings()
-print(f"Using environment file: {env_file}")
-print(f"Database Host: {settings.MYSQL_HOST}")
-print(f"Database User: {settings.MYSQL_USER}")
-

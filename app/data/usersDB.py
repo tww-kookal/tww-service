@@ -1,5 +1,9 @@
 from . import database
 from .. import utils
+import logging
+
+###### Logger #########
+logger = logging.getLogger("tww.service.usersdb")
 
 def queryUserDB(username: str):
     conn = database.get_connection()
@@ -26,7 +30,7 @@ def persistUserDB(username, password, first_name, last_name, email, phone):
     # Check if username already exists
     cursor.execute("SELECT user_id FROM users WHERE username = %s", (username,))
     if cursor.fetchone() is not None:
-        print("Username already exists")
+        logger.info(f"Username already exists")
         raise Exception("Username already exists")
 
     cursor.execute("INSERT INTO users (username, password, first_name, last_name, email, phone) VALUES (%s, %s, %s, %s, %s, %s)",
@@ -41,7 +45,7 @@ def queryRolesForUserDB(userName: str):
     cursor = conn.cursor(dictionary=False)
     cursor.execute("select role_name from roles , user_roles , users  where user_roles.role_id = roles.role_id and user_roles.user_id = users.user_id and users.username=%s", (userName,))
     user_roles = cursor.fetchall() # Returns a list of tuples with role names or an empty list if no roles found
-    print("User Roles: ", user_roles)
+    logger.info(f"User Roles for {userName}: {user_roles}")
     
     if not user_roles:
         return []
@@ -72,7 +76,7 @@ def assignRolesToUserDB(username: str, roleNames: list[str]):
     cursor = conn.cursor()
     try:
         user = queryUserDB(username)
-        print("User Retrieved ", user)
+        logger.info("User Retrieved ", user)
         if user is None or user["user_id"] is None :
             raise Exception("User not found")
 
@@ -88,7 +92,7 @@ def assignRolesToUserDB(username: str, roleNames: list[str]):
         cursor.execute(query, params)
         conn.commit()
     except Exception as e:
-        print("Exception Received in assignRolesToUserDB: ", e)
+        logger.error(f"Exception Received in assignRolesToUserDB: {e}")
         conn.rollback()
         raise e
     finally:
