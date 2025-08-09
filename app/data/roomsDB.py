@@ -39,12 +39,11 @@ def queryRoomByNameDB(room_name):
     conn.close()
     return room
 
-
 def queryAvailableRoomsDB(check_in, check_out, number_of_people):
     conn = database.get_connection()
     cursor = conn.cursor(dictionary=True)
     query  = """
-        SELECT r.room_name, min_capacity, max_capacity, number_of_beds, number_of_bathrooms
+        SELECT r.room_id, r.room_name, min_capacity, max_capacity, number_of_beds, number_of_bathrooms
         FROM rooms r
         LEFT JOIN bookings b 
             ON r.room_id = b.room_id
@@ -60,3 +59,14 @@ def queryAvailableRoomsDB(check_in, check_out, number_of_people):
     cursor.close()
     conn.close()
     return available_rooms
+
+def persistBookingDB(booking: dict):
+    conn = database.get_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO bookings (customer_id, room_id, check_in, check_out, booking_date, booked_by, status, room_price, food_price, service_price, tax_price, discount_price, total_price) 
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    """, (booking["customer_id"], booking["room_id"], booking["check_in"], booking["check_out"], booking["booking_date"], booking["booked_by"], booking["status"], booking["room_price"], booking["food_price"], booking["service_price"], booking["tax_price"], booking["discount_price"], booking["total_price"]))
+    conn.commit()
+    cursor.close()
+    conn.close()

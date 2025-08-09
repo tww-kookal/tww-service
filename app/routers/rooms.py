@@ -5,7 +5,6 @@ from fastapi.security import OAuth2PasswordBearer
 from datetime import date
 from ..auth import get_current_user
 from ..data import database
-
 from ..biz import roomsHelper as helper
 from .. import utils
 
@@ -25,6 +24,22 @@ class RoomModel (BaseModel):
     number_of_beds: int
     number_of_bathrooms: int
 
+class BookingModel (BaseModel):
+    booking_id: int
+    room_id: int
+    check_in: date
+    check_out: date
+    number_of_people: int
+    customer_name: str
+    booking_date: date
+    booked_by: str
+    status: str
+    room_price: float
+    discount_price: float
+    service_price: float
+    camp_fire: bool
+    barbeque: bool
+    breakfast: bool
 
 @router.get("/", response_model= None)
 async def listRooms(current_user: dict = Depends(get_current_user)):
@@ -84,26 +99,16 @@ async def check_room_availability(
 
 
 @router.post("/bookRoom")
-def book_room(room_id: int, check_in: str, check_out: str, current_user: str = Depends(get_current_user)):
+def book_room(booking: BookingModel, current_user: str = Depends(get_current_user)):
     if utils.isAuthorized(current_user, ["manager", 'agent', 'owner']) == False:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
 
     try:
-        bookRoom(room_id, check_in, check_out, current_user)
+        bookingDict = booking.model_dump()
+        bookingDict["booked_by"] = current_user
+        helper.bookRoom(bookingDict)
         return {"message": "Room booked successfully"}
     except Exception as e:
         print ("Exception in book_room: ", e)
         traceback.print_exc()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Not able to book the room")
-
-
-def bookRoom(room_id, check_in, check_out, current_user):
-    conn = database.get_connection()
-    cursor = conn.cursor()
-    cursor.execute("""
-        INSERT INTO bookings (room_id, username, check_in, check_out)
-        VALUES (%s, %s, %s, %s)
-    """, (room_id, current_user, check_in, check_out))
-    conn.commit()
-    cursor.close()
-    conn.close()

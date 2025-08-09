@@ -1,4 +1,4 @@
-from ..data import roomsDB
+from ..data import roomsDB, usersDB
 import traceback
 
 def getAllRooms():
@@ -36,3 +36,44 @@ def getAvailableRooms(check_in, check_out, number_of_people):
         print ("Exception in getAvailableRooms: ", e)
         traceback.print_exc()
         return []
+
+def bookRoom(booking: dict):
+    try:
+
+        bookedUser = usersDB.queryUserDB(booking["booked_by"])
+        if not bookedUser:
+            print("Booking User not found")
+            raise Exception("Booking User not found")
+
+        availableRooms = roomsDB.queryAvailableRoomsDB(
+            booking["check_in"], booking["check_out"], booking["number_of_people"]
+        )
+        if not availableRooms or len(availableRooms) == 0:
+            print("No available rooms for the given date range")
+            raise Exception("No available rooms")
+        
+        isRoomAvailable = False
+        
+        for availableRoom in availableRooms :
+            if availableRoom["room_id"] == booking["room_id"]:
+                booking["room_name"] = availableRoom["room_name"]
+                isRoomAvailable = True
+                break
+            
+        if isRoomAvailable == False:
+            print("Selected Room not available")
+            raise Exception("Selected Room not available")
+        
+        booking["booked_by"] = bookedUser["user_id"]
+        booking["customer_id"] = 1
+        booking["food_price"] = 0.0
+        booking["tax_price"] = 0.0
+        booking["discount_price"] = 0.0
+        booking["total_price"] = 0.0
+        
+        print("Persisting Booking Room ", booking)
+        roomsDB.persistBookingDB(booking)
+    except Exception as e:
+        print ("Exception in bookRoom: ", e)
+        traceback.print_exc()
+        raise Exception("Not able to book the room")
