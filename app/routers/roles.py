@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 import logging
+from pydantic import BaseModel
 from ..data import database
 from ..auth import get_current_user
 from ..utils import isAuthorized
@@ -14,14 +15,18 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 ####### Logger ############
 logger = logging.getLogger("tww.service.roles")
 
+class RoleCreate(BaseModel):
+    role_name: str
+
 @router.post("/create")
-async def create_role(role_name: str, current_user: dict = Depends(get_current_user)):
+async def create_role(role: RoleCreate, current_user: dict = Depends(get_current_user)):
     # Check if current user is admin
     if isAuthorized(current_user, ["admin"]) == False:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="not authorized"
         )
+    role_name = role.role_name
 
     logger.info(f"Role To be created: {role_name}")
     try:
@@ -46,5 +51,8 @@ async def listRoles(current_user: dict = Depends(get_current_user)):
         )
 
     roles = rolesDB.queryRolesDB()
-    return roles
+    return {
+        "status": status.HTTP_200_OK,
+        "roles": roles
+    }
 

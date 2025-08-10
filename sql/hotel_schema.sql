@@ -55,20 +55,31 @@ CREATE TABLE bookings (
     booking_id INT AUTO_INCREMENT PRIMARY KEY,
     customer_id INT NOT NULL,
     room_id INT NOT NULL,
+    number_of_people INT NOT NULL DEFAULT 3,
     check_in DATE NOT NULL,
     check_out DATE NOT NULL,
+    status ENUM('confirmed', 'cancelled', 'checked_in', 'checked_out') NOT NULL DEFAULT 'confirmed',
     booking_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     booked_by INT NOT NULL,
-    status ENUM('confirmed', 'cancelled', 'checked_in', 'checked_out') NOT NULL DEFAULT 'confirmed',
     room_price DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    advance_payment DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    advance_paid_to INT,
+    advance_payment_method VARCHAR(20) DEFAULT 'GPAY',
     food_price DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
     service_price DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
     tax_price DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
     discount_price DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
     total_price DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    final_price_paid_to INT,
+    final_price_payment_method VARCHAR(20) DEFAULT 'GPAY',
+    commission DECIMAL(10, 2) DEFAULT 0.00,
+    is_commission_settled ENUM('yes', 'no') NOT NULL DEFAULT 'no',
+    remarks TEXT,
     FOREIGN KEY (room_id) REFERENCES rooms(room_id) ON DELETE CASCADE,
     FOREIGN KEY (customer_id) REFERENCES customers(customer_id) ON DELETE CASCADE,
-    FOREIGN KEY (booked_by) REFERENCES users(user_id) ON DELETE CASCADE
+    FOREIGN KEY (booked_by) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (advance_paid_to) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (final_price_paid_to) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
 -- Sample Roles

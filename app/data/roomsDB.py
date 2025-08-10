@@ -1,6 +1,7 @@
 from . import database
 import traceback
 import logging
+from datetime import date
 ####### Logger ############
 logger = logging.getLogger("tww.service.roomsdb")
 
@@ -82,3 +83,31 @@ def queryRolesDB():
     cursor.close()
     conn.close()
     return roles
+
+def listBookingsSinceDB(startingDate: date):
+    conn = database.get_connection()
+    cursor = conn.cursor(dictionary=True)
+    query = """
+        SELECT b.booking_id, b.customer_id, c.full_name as "customer_name", c.phone as "contact_number",
+            c.email as "contact_email", DATEDIFF(b.check_out, b.check_in) as "number_of_nights",
+            b.room_id, r.room_name, b.number_of_people, b.check_in, b.check_out, b.status, b.booking_date, 
+            b.booked_by as "booked_by_id", CONCAT(bu.first_name, " ", bu.last_name) as "source_of_booking", 
+            b.room_price, b.advance_payment, b.advance_paid_to as "advance_paid_to_id", 
+            CONCAT(ba.first_name, ' ', ba.last_name) as "advance_paid_to", 
+            b.advance_payment_method, 
+            b.food_price, b.service_price, b.tax_price, b.discount_price, b.total_price, 
+            b.final_price_paid_to as "final_price_paid_to_id", 
+            CONCAT(bp.first_name, ' ', bp.last_name) as "final_price_paid_to", 
+            b.final_price_payment_method, b.commission, b.is_commission_settled, b.remarks
+        FROM bookings b INNER JOIN customers c ON (b.customer_id = c.customer_id)
+        INNER JOIN rooms r ON (b.room_id = r.room_id)
+        INNER JOIN users bu on (b.booked_by = bu.user_id)
+        LEFT JOIN users ba on (b.advance_paid_to = ba.user_id)
+        LEFT JOIN users bp on (b.final_price_paid_to = bp.user_id)
+        WHERE b.booking_date >= %s
+    """
+    cursor.execute(query, (startingDate,))
+    bookings = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return bookings

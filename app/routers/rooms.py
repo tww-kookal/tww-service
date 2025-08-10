@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Path
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Path
 from typing import Annotated
 import traceback
 import logging
@@ -56,7 +56,7 @@ async def listRooms(current_user: dict = Depends(get_current_user)):
         "rooms": rooms
     }
 
-@router.get("/{room_name}", response_model= None)
+@router.get("/byName/{room_name}", response_model= None)
 async def getRoomByName(room_name: str, current_user: dict = Depends(get_current_user)):
     if utils.isAuthorized(current_user, ["self"]) == False:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
@@ -84,16 +84,15 @@ async def createRoom(room: RoomModel, current_user: dict = Depends(get_current_u
         logger.error (f"Exception in createRoom: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Not able to create the room")
 
-@router.get("/checkRoomAvailability/{check_in_date}/{check_out_date}/{number_of_people}", description = "Check room availability based on check-in date, check-out date and number of people")
+@router.get("/checkRoomAvailability", description = "Check room availability based on check-in date, check-out date and number of people")
 async def check_room_availability(
-        check_in_date: date = Path(..., description="Check-in date in YYYY-MM-DD format", example = "2025-09-27"), 
-        check_out_date: date = Path(..., description="Check-out date in YYYY-MM-DD format always greater than the check in date", example = "2025-09-29"), 
-        number_of_people: int = Path(..., description="Number of people to be greater than zero", example = 2),
-        current_user: dict = Depends(get_current_user)
-        ):
+    check_in_date: date = Query(..., description="Check-in date in YYYY-MM-DD format", example = "2025-09-27"), 
+    check_out_date: date = Query(..., description="Check-out date in YYYY-MM-DD format always greater than the check in date", example = "2025-09-29"), 
+    number_of_people: int = Query(..., description="Number of people to be greater than zero", example = 2),    
+    current_user: dict = Depends(get_current_user)):
+
     if utils.isAuthorized(current_user, ["manager", 'agent', 'owner']) == False:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
-
     available_rooms = helper.getAvailableRooms(check_in_date, check_out_date, number_of_people)
 
     return {
@@ -116,3 +115,36 @@ def book_room(booking: BookingModel, current_user: str = Depends(get_current_use
         logger.error(f"Exception in book_room: {e}")
         traceback.print_exc()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Not able to book the room")
+
+@router.get("/listAllBookings", description = "list all the bookings since the date, if the date is not provided the default date is since Jan 1, 2020")
+async def listAllBookings(
+    current_user: dict = Depends(get_current_user)):
+    if utils.isAuthorized(current_user, ["admin", 'manager', 'owner']) == False:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
+    try:
+        bookings = helper.listBookingsSince()
+        return {
+            "status": status.HTTP_200_OK,
+            "bookings": bookings
+        }
+    except Exception as e:
+        logger.error(f"Exception in listAllBookings: {e}")
+        traceback.print_exc()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Not able to get all the bookings")
+
+@router.get("/listAllBookings/{startingDate}", description = "list all the bookings since the date, if the date is not provided the default date is since Jan 1, 2020")
+async def listAllBookings(
+    startingDate: date = Path(description="Starting date in YYYY-MM-DD format", example = "2025-09-27"), 
+    current_user: dict = Depends(get_current_user)):
+    if utils.isAuthorized(current_user, ["admin", 'manager', 'owner']) == False:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
+    try:
+        bookings = helper.listBookingsSince(startingDate)
+        return {
+            "status": status.HTTP_200_OK,
+            "bookings": bookings
+        }
+    except Exception as e:
+        logger.error(f"Exception in listAllBookings: {e}")
+        traceback.print_exc()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Not able to get all the bookings")

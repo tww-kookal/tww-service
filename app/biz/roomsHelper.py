@@ -1,6 +1,7 @@
 from ..data import roomsDB, usersDB
 import traceback
 import logging
+from datetime import date
 
 ####### Logger ############
 logger = logging.getLogger("tww.service.roomshelper")
@@ -81,3 +82,11 @@ def bookRoom(booking: dict):
         logger.error(f"Exception in bookRoom: {e}")
         traceback.print_exc()
         raise Exception("Not able to book the room")
+
+def listBookingsSince(startingDate: date = date(2020, 1, 1)):
+    try:
+        return roomsDB.listBookingsSinceDB(startingDate)
+    except Exception as e:
+        logger.error(f"Exception in listAllBookings: {e}")
+        traceback.print_exc()
+        return []

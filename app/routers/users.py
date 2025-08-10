@@ -72,7 +72,7 @@ async def getByUsername(username: str, current_user: dict = Depends(get_current_
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return user
 
-@router.get("/list")
+@router.get("/")
 async def list(current_user: dict = Depends(get_current_user)):
     logger.info(f"Current User: {current_user}")
     # Check if current user is admin    

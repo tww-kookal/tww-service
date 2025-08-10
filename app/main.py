@@ -1,13 +1,10 @@
 from fastapi import FastAPI
 from .routers import login, rooms, users, roles, reports
 from prometheus_fastapi_instrumentator import Instrumentator
+from fastapi.middleware.cors import CORSMiddleware
 import logging
 from .config.config import settings
 
-app = FastAPI()
-Instrumentator().instrument(
-    app,
-).expose(app, include_in_schema=False, tags=["metrics"])
 
 ### Logger Settings ###
 # ANSI escape codes for colors
@@ -42,7 +39,24 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger("tww.service.main")
+
+########## Log Setup Completed ############
+
 logger.debug(f"Database Host: {settings.MYSQL_HOST}")
+
+app = FastAPI()
+Instrumentator().instrument(
+    app,
+).expose(app, include_in_schema=False, tags=["metrics"])
+
+######## Add CORS Error
+app.add_middleware(
+  CORSMiddleware,
+  allow_origins=["http://localhost:5173","http://localhost:3000"],
+  allow_credentials=True,
+  allow_methods=["*"],
+  allow_headers=["*"],
+)
 
 # Include routers
 app.include_router(login.router)

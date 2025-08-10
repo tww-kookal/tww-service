@@ -23,3 +23,12 @@ def queryRoleByNameDB(role_name):
     cursor.close()
     conn.close()
     return role_id
+
+def queryRolesDB():
+    conn = database.get_connection()
+    cursor = conn.cursor(dictionary = True)
+    cursor.execute("SELECT role_id, role_name FROM roles")
+    roles = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return roles
