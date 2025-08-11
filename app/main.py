@@ -51,8 +51,8 @@ Instrumentator().instrument(
 ######## Add CORS Error
 app.add_middleware(
   CORSMiddleware,
-  allow_origins=["http://localhost:5173","http://localhost:3000","https://tww-booking.up.railway.app", "https://tww-kookal.github.io/"],
-  allow_methods=["GET", "POST", "OPTIONS"],
+  allow_origins=["http://localhost:5173","https://tww-kookal.github.io"],
+  allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],  # HTTP methods
   allow_headers=["*"],
   expose_headers=["*"],
   allow_credentials=True,
