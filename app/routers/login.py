@@ -6,7 +6,11 @@ from .. import utils
 from ..config import config
 from ..biz.users import validateUser, queryUser
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/api/v1",  # all routes start with /api/v1
+    tags=["Login"]    # OpenAPI grouping
+)
+
 ####### Logger ############
 logger = logging.getLogger("tww.service.login")
 

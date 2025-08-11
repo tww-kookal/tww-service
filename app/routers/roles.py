@@ -8,7 +8,7 @@ from ..utils import isAuthorized
 from ..data import rolesDB
 
 router = APIRouter(
-    prefix="/roles",  # all routes start with /users
+    prefix="/api/v1/roles",  # all routes start with /api/v1/roles
     tags=["Roles"]    # OpenAPI grouping
 )
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")

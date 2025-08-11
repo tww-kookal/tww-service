@@ -4,7 +4,7 @@ from ..data import database
 import logging
 
 router = APIRouter(
-    prefix="/reports",  # all routes start with /users
+    prefix="/api/v1/reports",  # all routes start with /api/v1/reports
     tags=["Reports"]    # OpenAPI grouping
 )
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")

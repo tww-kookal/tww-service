@@ -13,7 +13,7 @@ from .. import utils
 logger = logging.getLogger("tww.service.rooms")
 
 router = APIRouter(
-    prefix="/rooms",  # all routes start with /rooms
+    prefix="/api/v1/rooms",  # all routes start with /api/v1/rooms
     tags=["Rooms"]    # OpenAPI grouping
 )
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")

@@ -10,7 +10,7 @@ from ..utils import isAuthorized
 logger = logging.getLogger("tww.service.customers")
 
 router = APIRouter(
-    prefix="/customers",  # all routes start with /customers
+    prefix="/api/v1/customers",  # all routes start with /customers
     tags=["Customers"]    # OpenAPI grouping
 )
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
