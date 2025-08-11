@@ -148,3 +148,14 @@ async def listAllBookings(
         logger.error(f"Exception in listAllBookings: {e}")
         traceback.print_exc()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Not able to get all the bookings")
+    
+@router.get("/guestsForDay/{forDate}")
+def noOfGuest(forDate: date, current_user: dict = Depends(get_current_user)):
+    if utils.isAuthorized(current_user, ["admin", 'manager', 'owner']) == False:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
+
+    result = helper.guestsForDay(forDate)
+
+    print(result)
+    return result
+

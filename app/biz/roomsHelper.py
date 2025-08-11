@@ -90,3 +90,11 @@ def listBookingsSince(startingDate: date = date(2020, 1, 1)):
         logger.error(f"Exception in listAllBookings: {e}")
         traceback.print_exc()
         return []
+
+def guestsForDay(forDate: date):
+    try:
+        return roomsDB.guestsForDay(forDate=forDate)[0]
+    except Exception as e:
+        logger.error(f"Exception in no_of_guest: {e}")
+        traceback.print_exc()
+        raise Exception("Not able to get the number of guests")

@@ -111,3 +111,12 @@ def listBookingsSinceDB(startingDate: date):
     cursor.close()
     conn.close()
     return bookings
+
+def guestsForDay(forDate: date):
+    conn =database.get_connection()
+    cursor = conn.cursor()
+    query = 'select count(number_of_people) as "number_of_guests" from bookings where  %s between check_in and check_out'
+    cursor.execute(query, (forDate,))
+    result = cursor.fetchone()
+    return result
+

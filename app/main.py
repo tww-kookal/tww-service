@@ -1,10 +1,9 @@
 from fastapi import FastAPI
-from .routers import login, rooms, users, roles, reports
+from .routers import login, rooms, users, roles, reports, customers
 from prometheus_fastapi_instrumentator import Instrumentator
 from fastapi.middleware.cors import CORSMiddleware
 import logging
 from .config.config import settings
-
 
 ### Logger Settings ###
 # ANSI escape codes for colors
@@ -61,6 +60,7 @@ app.add_middleware(
 # Include routers
 app.include_router(login.router)
 app.include_router(rooms.router)
+app.include_router(customers.router)
 app.include_router(users.router)
 app.include_router(roles.router)
 app.include_router(reports.router)
