@@ -11,6 +11,7 @@ logger = logging.getLogger("tww.service.utils")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 #pwd_context = CryptContext(schemes=["bcrypt"],bcrypt__ident="2b", deprecated="auto")
 ####print(pwd_context.hash("@dmini$Tr@T0r@Tww#112"))
+#print(pwd_context.hash("pranav@123"))
 
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)

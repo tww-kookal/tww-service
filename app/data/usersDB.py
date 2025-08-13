@@ -16,7 +16,7 @@ def queryUserDB(username: str):
 
 def queryUserByIdDB(user_id):
     conn = database.get_connection()
-    cursor = conn.cursor()
+    cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT user_id, username, first_name, last_name, email, phone FROM users WHERE user_id = %s", (user_id,))
     userTuple = cursor.fetchone() # Returns a tuple (user_id, username, first_name, last_name, email, phone) or None if not found
     cursor.close()

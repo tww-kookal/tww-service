@@ -28,22 +28,31 @@ class RoomModel (BaseModel):
     number_of_beds: int
     number_of_bathrooms: int
 
-class BookingModel (BaseModel):
+class BookingModel(BaseModel):
     booking_id: int
     room_id: int
+    customer_id: int
+    booking_date: date
     check_in: date
     check_out: date
     number_of_people: int
-    customer_name: str
-    booking_date: date
-    booked_by: str
+    number_of_nights: int
     status: str
+    source_of_booking_id: int
     room_price: float
-    discount_price: float
+    advance_paid: float
+    advance_paid_to: int
+    food_price: float
     service_price: float
-    camp_fire: bool
-    barbeque: bool
-    breakfast: bool
+    balance_to_pay: float
+    balance_paid_to: int
+    commission: float
+    tax_percent: float = 0
+    tax_price: float = 0
+    discount_price: float = 0
+    total_price: float
+    final_price_paid_to: int
+    remarks: str
 
 @router.get("/", response_model= None)
 async def listRooms(current_user: dict = Depends(get_current_user)):
@@ -109,8 +118,21 @@ def book_room(booking: BookingModel, current_user: str = Depends(get_current_use
     try:
         bookingDict = booking.model_dump()
         bookingDict["booked_by"] = current_user
-        helper.bookRoom(bookingDict)
-        return {"message": "Room booked successfully"}
+        booking = helper.bookRoom(bookingDict)
+        return {
+            "status": status.HTTP_200_OK,
+            "message": "Room booked successfully", 
+            "booking": booking
+        }
+    except helper.RoomNotAvailableException as e:
+        logger.error(f"Room Not Available Exception in book_room: {e}")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Room Not Available")
+    except helper.BookingUserNotAvailableException as e:
+        logger.error(f"Booking User Not Available Exception in book_room: {e}")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Booking User Not Available")
+    except helper.CustomerNotAvailableException as e:
+        logger.error(f"Customer Not Available Exception in book_room: {e}")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Customer Not Available")
     except Exception as e:
         logger.error(f"Exception in book_room: {e}")
         traceback.print_exc()

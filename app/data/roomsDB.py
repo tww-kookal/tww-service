@@ -68,12 +68,20 @@ def persistBookingDB(booking: dict):
     conn = database.get_connection()
     cursor = conn.cursor()
     cursor.execute("""
-        INSERT INTO bookings (customer_id, room_id, check_in, check_out, booking_date, booked_by, status, room_price, food_price, service_price, tax_price, discount_price, total_price) 
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-    """, (booking["customer_id"], booking["room_id"], booking["check_in"], booking["check_out"], booking["booking_date"], booking["booked_by"], booking["status"], booking["room_price"], booking["food_price"], booking["service_price"], booking["tax_price"], booking["discount_price"], booking["total_price"]))
+        INSERT INTO bookings (customer_id, room_id, check_in, check_out, source_of_booking_id,
+                   booking_date, booked_by_id, status, room_price, food_price, 
+                   service_price, tax_percent, tax_price, discount_price, total_price) 
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    """, (booking["customer_id"], booking["room_id"], booking["check_in"], booking["check_out"], 
+          booking["source_of_booking_id"],
+          booking["booking_date"], booking["booked_by_id"], 
+          booking["status"], booking["room_price"], booking["food_price"], booking["service_price"], 
+          booking["tax_percent"], booking["tax_price"], booking["discount_price"], booking["total_price"]))
+    booking["booking_id"] = cursor.lastrowid
     conn.commit()
     cursor.close()
     conn.close()
+    return booking
 
 def queryRolesDB():
     conn = database.get_connection()
@@ -91,7 +99,7 @@ def listBookingsSinceDB(startingDate: date):
         SELECT b.booking_id, b.customer_id, c.full_name as "customer_name", c.phone as "contact_number",
             c.email as "contact_email", DATEDIFF(b.check_out, b.check_in) as "number_of_nights",
             b.room_id, r.room_name, b.number_of_people, b.check_in, b.check_out, b.status, b.booking_date, 
-            b.booked_by as "booked_by_id", CONCAT(bu.first_name, " ", bu.last_name) as "source_of_booking", 
+            b.booked_by_id, CONCAT(bu.first_name, " ", bu.last_name) as "source_of_booking", 
             b.room_price, b.advance_payment, b.advance_paid_to as "advance_paid_to_id", 
             CONCAT(ba.first_name, ' ', ba.last_name) as "advance_paid_to", 
             b.advance_payment_method, 
@@ -101,7 +109,7 @@ def listBookingsSinceDB(startingDate: date):
             b.final_price_payment_method, b.commission, b.is_commission_settled, b.remarks
         FROM bookings b INNER JOIN customers c ON (b.customer_id = c.customer_id)
         INNER JOIN rooms r ON (b.room_id = r.room_id)
-        INNER JOIN users bu on (b.booked_by = bu.user_id)
+        INNER JOIN users bu on (b.booked_by_id = bu.user_id)
         LEFT JOIN users ba on (b.advance_paid_to = ba.user_id)
         LEFT JOIN users bp on (b.final_price_paid_to = bp.user_id)
         WHERE b.booking_date >= %s
