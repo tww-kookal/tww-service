@@ -28,7 +28,7 @@ def createUser(user: dict):
     return userDB.persistUserDB(user)
 
 def updateUserDetail(user: dict):
-    logger.debug(f"UpdateUserDetail:: Query USer {user["user_id"]}")
+    logger.debug(f"UpdateUserDetail:: Query User {user}")
     userFound = userDB.queryUserByIdDB(user["user_id"])
     #if the userFound is not availble then raise an exception
 
