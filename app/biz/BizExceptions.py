@@ -12,3 +12,8 @@ class CustomerNotAvailableException(Exception):
     def __init__(self, message="Customer Not Available"):
         self.message = message
         super().__init__(self.message) # Call the parent class's __init__
+
+class DuplicateUserException(Exception):
+    def __init__(self, message="Username already registered"):
+        self.message = message
+        super().__init__(self.message) # Call the parent class's __init__

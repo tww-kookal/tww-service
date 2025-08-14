@@ -8,7 +8,7 @@ logger = logging.getLogger("tww.service.usersdb")
 def queryUserDB(username: str):
     conn = database.get_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT user_id, username, first_name, last_name, email, phone, password FROM users WHERE username=%s", (username,))
+    cursor.execute("SELECT user_id, username, first_name, last_name, email, phone, booking_commission, password FROM users WHERE username=%s", (username,))
     user = cursor.fetchone()
     cursor.close()
     conn.close()
@@ -17,35 +17,49 @@ def queryUserDB(username: str):
 def queryUserByIdDB(user_id):
     conn = database.get_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT user_id, username, first_name, last_name, email, phone FROM users WHERE user_id = %s", (user_id,))
-    userTuple = cursor.fetchone() # Returns a tuple (user_id, username, first_name, last_name, email, phone) or None if not found
+    cursor.execute("SELECT user_id, username, first_name, last_name, email, phone, booking_commission FROM users WHERE user_id = %s", (user_id,))
+    user = cursor.fetchone() # Returns a tuple (user_id, username, first_name, last_name, email, phone) or None if not found
     cursor.close()
     conn.close()
-    return userTuple
+    return user
 
-def persistUserDB(username, password, first_name, last_name, email, phone):
+def persistUserDB(user):
     conn = database.get_connection()
     cursor = conn.cursor()
-    hashed_pwd = utils.hash_password(password)
-    # Check if username already exists
-    cursor.execute("SELECT user_id FROM users WHERE username = %s", (username,))
-    if cursor.fetchone() is not None:
-        logger.info(f"Username already exists")
-        raise Exception("Username already exists")
-
-    cursor.execute("INSERT INTO users (username, password, first_name, last_name, email, phone) VALUES (%s, %s, %s, %s, %s, %s)",
-                   (username, hashed_pwd, first_name, last_name, email, phone))
+    cursor.execute("INSERT INTO users (username, password, first_name, last_name, email, phone, booking_commission) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+                   (user["username"], user["hashed_password"], user["first_name"], user["last_name"], user["email"], user["phone"], user["booking_commission"]))
+    user["user_id"] = cursor.lastrowid
     conn.commit()
     cursor.close()
     conn.close()
-    return True
+    return user
+
+def updateUserDetailDB(user):
+    conn = database.get_connection()
+    cursor = conn.cursor()
+    query = """
+            UPDATE users SET 
+                username=%s, first_name=%s, last_name=%s, email=%s, phone=%s, 
+                booking_commission=%s WHERE user_id=%s
+    """
+    try:
+        cursor.execute(query,(user["username"], user["first_name"], 
+                            user["last_name"], user["email"], user["phone"], user["booking_commission"], user["user_id"]))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return user
+    except Exception as e:
+        logger.error(f"Exception Received in updateUserDetailDB: {e}")
+        conn.rollback()
+        raise e
+
 
 def queryRolesForUserDB(userName: str):
     conn = database.get_connection()
     cursor = conn.cursor(dictionary=False)
-    cursor.execute("select role_name from roles , user_roles , users  where user_roles.role_id = roles.role_id and user_roles.user_id = users.user_id and users.username=%s", (userName,))
+    cursor.execute("SELECT role_name FROM roles, user_roles, users  WHERE user_roles.role_id = roles.role_id AND user_roles.user_id = users.user_id AND users.username=%s", (userName,))
     user_roles = cursor.fetchall() # Returns a list of tuples with role names or an empty list if no roles found
-    logger.info(f"User Roles for {userName}: {user_roles}")
     
     if not user_roles:
         return []
@@ -56,7 +70,7 @@ def queryRolesForUserDB(userName: str):
 def queryAllUsersDB():
     conn = database.get_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT user_id, username, first_name, last_name, email, phone FROM users")
+    cursor.execute("SELECT user_id, username, first_name, last_name, email, phone, booking_commission FROM users ORDER BY first_name DESC")
     users = cursor.fetchall() # Returns a list of dictionaries of users in tuple format
     cursor.close()
     conn.close()
@@ -83,8 +97,8 @@ def assignRolesToUserDB(username: str, roleNames: list[str]):
         # Create placeholders: %s, %s for the query
         placeholders = ", ".join(["%s"] * len(roleNames))
         query = f"""
-        INSERT INTO user_roles (user_id, role_id)
-        SELECT %s, role_id FROM roles WHERE role_name IN ({placeholders})
+            INSERT INTO user_roles (user_id, role_id)
+            SELECT %s, role_id FROM roles WHERE role_name IN ({placeholders})
         """
 
         # Combine user_id with roleNames for parameters
@@ -98,5 +112,4 @@ def assignRolesToUserDB(username: str, roleNames: list[str]):
     finally:
         cursor.close()
         conn.close()
-
 

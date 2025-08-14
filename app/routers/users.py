@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
+from ..biz import usersHelper as helper
 import logging
 from ..data import database
-from ..data.usersDB import persistUserDB, queryUserByIdDB, queryAllUsersDB, queryUserDB, assignRolesToUserDB, queryRolesForUserDB
+from ..data.usersDB import queryUserByIdDB, queryAllUsersDB, queryUserDB, assignRolesToUserDB, queryRolesForUserDB
 from typing import List
+from pydantic import BaseModel
 
 from .. import utils
 from ..auth import get_current_user
@@ -25,8 +27,28 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 #      -d '{"username":"newuser", "password":"password123", "role_id":1}'
 #####################
 
+class UserBaseModel (BaseModel):
+    username: str
+    first_name: str
+    last_name: str
+    email: str
+    phone: str
+    booking_commission: int
+
+class UserModel (UserBaseModel):
+    password: str
+
+class UerDetailModel (BaseModel):
+    user_id: int
+    username: str
+    first_name: str
+    last_name: str
+    email: str
+    phone: str
+    booking_commission: int
+
 @router.post("/create")
-async def create(username: str, password: str, first_name: str, last_name: str, email: str, phone: str, current_user: dict = Depends(get_current_user)):
+async def create(user: UserModel, current_user: dict = Depends(get_current_user)):
     # Check if current user is admin
     if isAuthorized(current_user, ["admin"]) == False:
         raise HTTPException(
@@ -35,16 +57,51 @@ async def create(username: str, password: str, first_name: str, last_name: str, 
         )
         
     try:
-        persistUserDB(username, password, first_name, last_name, email, phone)
+        createdUser = helper.createUser(user.dict())
         return {
             "status": status.HTTP_201_CREATED,
-            "message": "User created successfully"
+            "message": "User created successfully",
+            "user": createdUser
         }
+    except helper.DuplicateUserException as e:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=e.message
+        )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_412_PRECONDITION_FAILED,
             detail="Unable to create user, check logs"
         )
+
+@router.post("/update")
+async def update(user: UerDetailModel, current_user: dict = Depends(get_current_user)):
+    # Check if current user is admin
+    if isAuthorized(current_user, ["admin"]) == False:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="not authorized"
+        )
+        
+    try:
+        logger.debug("UserAPI::update::user: %s", user.dict())
+        updatedUser = helper.updateUserDetail(user.dict())
+        return {
+            "status": status.HTTP_200_OK,
+            "message": "User updated successfully",
+            "user": updatedUser
+        }
+    except helper.UserNotAvailableException as e:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=e.message
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_412_PRECONDITION_FAILED,
+            detail="Unable to create user, check logs"
+        )
+
 
 @router.get("/getById/{user_id}")
 async def getById(user_id: int, current_user: dict = Depends(get_current_user)):
@@ -57,7 +114,10 @@ async def getById(user_id: int, current_user: dict = Depends(get_current_user)):
     user = queryUserByIdDB(user_id)
     if user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    return user
+    return {
+        "status": status.HTTP_200_OK,
+        "user": user
+    }
 
 @router.get("/getByUsername/{username}")
 async def getByUsername(username: str, current_user: dict = Depends(get_current_user)):
@@ -70,7 +130,10 @@ async def getByUsername(username: str, current_user: dict = Depends(get_current_
     user = queryUserDB(username)
     if user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    return user
+    return {
+        "status": status.HTTP_200_OK,
+        "user": user
+    }
 
 @router.get("/")
 async def list(current_user: dict = Depends(get_current_user)):

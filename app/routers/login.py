@@ -4,7 +4,8 @@ import logging
 from datetime import timedelta
 from .. import utils 
 from ..config import config
-from ..biz.users import validateUser, queryUser
+from ..biz import usersHelper as userHelper
+
 
 router = APIRouter(
     prefix="/api/v1",  # all routes start with /api/v1
@@ -16,9 +17,9 @@ logger = logging.getLogger("tww.service.login")
 
 @router.post("/login")
 def login(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = queryUser(form_data.username)
+    user = userHelper.queryUser(form_data.username)
 
-    if not validateUser(user, form_data.password):
+    if not userHelper.validateUser(user, form_data.password):
         raise HTTPException(status_code=400, detail="Invalid credentials")
 
     access_token = utils.create_access_token(

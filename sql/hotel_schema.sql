@@ -14,6 +14,7 @@ CREATE TABLE users (
     last_name VARCHAR(50) NOT NULL,
     email VARCHAR(100) NOT NULL,
     phone VARCHAR(20) NOT NULL,
+    booking_commission INT DEFAULT 0,
     FOREIGN KEY (role_id) REFERENCES roles(role_id) ON DELETE SET NULL
 );
 
@@ -71,18 +72,23 @@ CREATE TABLE bookings (
     tax_percent DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
     tax_price DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
     discount_price DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    balance_to_pay DECIMAL(10, 2) NOT NULL DEFAULT 0.0,
+    is_balance_paid BOOLEAN NOT NULL DEFAULT FALSE,
+    balance_paid_to INT,
     total_price DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
     final_price_paid_to INT,
     final_price_payment_method VARCHAR(20) DEFAULT 'GPAY',
+    is_final_price_paid BOOLEAN NOT NULL DEFAULT FALSE,
     commission DECIMAL(10, 2) DEFAULT 0.00,
-    is_commission_settled ENUM('yes', 'no') NOT NULL DEFAULT 'no',
+    is_commission_settled BOOLEAN NOT NULL DEFAULT FALSE,
     remarks TEXT,
     FOREIGN KEY (room_id) REFERENCES rooms(room_id) ON DELETE CASCADE,
     FOREIGN KEY (customer_id) REFERENCES customers(customer_id) ON DELETE CASCADE,
     FOREIGN KEY (booked_by_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (source_of_booking_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (advance_paid_to) REFERENCES users(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (final_price_paid_to) REFERENCES users(user_id) ON DELETE CASCADE
+    FOREIGN KEY (final_price_paid_to) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (balance_paid_to) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
 -- Sample Roles

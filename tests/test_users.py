@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import patch, MagicMock
-from app.biz import users
+from app.biz import usersHelper
 
 @pytest.fixture
 def mock_user():
@@ -22,7 +22,7 @@ class TestUsers:
         mock_verify_password.return_value = True
         
         # Act
-        result = users.validateUser(mock_user, "password123")
+        result = usersHelper.validateUser(mock_user, "password123")
         
         # Assert
         assert result is True
@@ -34,7 +34,7 @@ class TestUsers:
         mock_verify_password.return_value = False
         
         # Act
-        result = users.validateUser(mock_user, "wrong_password")
+        result = usersHelper.validateUser(mock_user, "wrong_password")
         
         # Assert
         assert result is False
@@ -42,7 +42,7 @@ class TestUsers:
     
     def test_validateUser_no_user(self):
         # Act
-        result = users.validateUser(None, "password123")
+        result = usersHelper.validateUser(None, "password123")
         
         # Assert
         assert result is False
@@ -53,7 +53,7 @@ class TestUsers:
         mock_queryUserDB.return_value = mock_user
         
         # Act
-        result = users.queryUser("testuser")
+        result = usersHelper.queryUser("testuser")
         
         # Assert
         assert result == mock_user
