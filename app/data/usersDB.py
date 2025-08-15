@@ -8,7 +8,7 @@ logger = logging.getLogger("tww.service.usersdb")
 def queryUserDB(username: str):
     conn = database.get_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT user_id, username, first_name, last_name, email, phone, password FROM users WHERE username=%s", (username,))
+    cursor.execute("SELECT user_id, username, first_name, last_name, email, phone, booking_commission, password FROM users WHERE username=%s", (username,))
     user = cursor.fetchone()
     cursor.close()
     conn.close()
