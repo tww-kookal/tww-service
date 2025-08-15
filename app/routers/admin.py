@@ -15,7 +15,7 @@ from .. import utils
 logger = logging.getLogger("tww.service.admin")
 
 router = APIRouter(
-    prefix="/api/v1/admin",  # all routes start with /api/v1/rooms
+    prefix="/n",  # all routes start with /api/v1/rooms
     tags=["Admin"]    # OpenAPI grouping
 )
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
