@@ -1,0 +1,6 @@
+﻿customer_name,phone,source_of_booking,room_id,number_of_people,check_in,check_out,status,room_price,advance_payment,advance_paid_to,food_price,service_price,total_price,is_final_price_paid,commission,is_commission_settled,remarks,balance_to_pay,is_balance_paid,balance_paid_to,customer_status,source_of_booking_status,over_all_status
+Pallavi,NO_PHONE,sangeetha,1,4,2025-07-04,2025-07-06,Confirmed,14000,,,3460,0,17460,1,1120,1,,17460,1,Anika,PASSED,PASSED,FAILED
+Azharu Dheen,NO_PHONE,sangeetha,1,4,2025-07-05,2025-07-06,Confirmed,6500,,,1810,0,8310,1,520,1,,8310,1,Anika,PASSED,PASSED,FAILED
+Rithish,9600731215,Sangeetha,1,4,2025-07-15,2025-07-16,Confirmed,7000,,,0,0,7000,1,560,1,,7000,1,Anika,PASSED,PASSED,FAILED
+Ajay Kumar pandey,NO_PHONE,walkin,2,2,2025-07-25,2025-07-26,Confirmed,4500,,,0,0,4500,1,0,1,,4500,1,karthik,PASSED,PASSED,FAILED
+Ajay Kumar pandey,NO_PHONE,walkin,4,2,2025-07-26,2025-07-27,Confirmed,3000,,,1130,0,4130,1,0,1,,4130,1,karthik,PASSED,PASSED,FAILED
