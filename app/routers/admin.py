@@ -14,10 +14,11 @@ from .. import utils
 ######## Logging ########
 logger = logging.getLogger("tww.service.admin")
 
-router = APIRouter(
-    prefix="/",  # all routes start with /api/v1/rooms
-    tags=["Admin"]    # OpenAPI grouping
-)
+router = APIRouter()
+#     prefix="/",  # all routes start with /api/v1/rooms
+#     tags=["Admin"]    # OpenAPI grouping
+# )
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 @router.post("/login")
