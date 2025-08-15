@@ -75,6 +75,7 @@ CREATE TABLE bookings (
     balance_to_pay DECIMAL(10, 2) NOT NULL DEFAULT 0.0,
     is_balance_paid BOOLEAN NOT NULL DEFAULT FALSE,
     balance_paid_to INT,
+    balance_payment_method VARCHAR(20) DEFAULT 'GPAY',
     total_price DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
     final_price_paid_to INT,
     final_price_payment_method VARCHAR(20) DEFAULT 'GPAY',
