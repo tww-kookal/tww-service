@@ -38,18 +38,21 @@ def bookRoom(booking: dict, is_update=False):
     booking["advance_paid_to"] = none_if_zero(booking["advance_paid_to"])
     booking["booked_by_id"] = bookingUser["user_id"]
 
-    logger.info(f"Persisting Booking Room: {booking}")
+    logger.debug(f"Persisting Booking Room: {booking}, {is_update}")
     if(is_update):
         old_booking = bookingDB.getBookingById(booking["booking_id"])
-        is_same_booking = old_booking["room_id"] == booking["room_id"] and old_booking["check_in"] == booking["check_in"] and old_booking["check_out"] == booking["check_out"]
+        is_same_booking = old_booking["room_id"] == booking["room_id"] and (old_booking["check_in"] == booking["check_in"] or old_booking["check_out"] == booking["check_out"])
+        logger.debug(f"Same Booking: {is_same_booking}")
         if not is_same_booking:
             #Check for room availability
             #Check if the selected room is available
             selectedRoom = getSelectedRoom(booking["check_in"], booking["check_out"], booking["number_of_people"], booking["room_id"])
+            logger.debug(f"Selected Room: {selectedRoom}")
             if not selectedRoom:
                 logger.error(f"Selected Room not available")
                 raise RoomNotAvailableException("Selected Room not available for the dates")            
         bookedRoom = bookingDB.updateBookingDB(booking)
+        logger.debug(f"Updated Booking: {bookedRoom}")
     else:
         selectedRoom = getSelectedRoom(booking["check_in"], booking["check_out"], booking["number_of_people"], booking["room_id"])
         if not selectedRoom:
