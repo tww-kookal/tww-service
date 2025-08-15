@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query, Path
 from typing import Annotated
 from datetime import timedelta
 from ..config import config
-import traceback
+from pydantic import BaseModel
 import logging
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.security import OAuth2PasswordRequestForm
@@ -35,12 +35,16 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
+
+class ScriptModel (BaseModel):
+    query: str
+
 @router.post("/execute")
-async def execute(string: str, current_user: dict = Depends(get_current_user)):
+async def execute(query: ScriptModel, current_user: dict = Depends(get_current_user)):
     if utils.isAuthorized(current_user, ["admin"]) == False:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
     try:
-        createdRoom = helper.execute(string)
+        createdRoom = helper.execute(query.model_dump())
         return {
             "status": status.HTTP_200_OK,
             "message": "Success"
