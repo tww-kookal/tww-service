@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from .routers import login, rooms, users, roles, reports, customers, booking
+from .routers import login, rooms, users, roles, reports, customers, booking, admin
 from prometheus_fastapi_instrumentator import Instrumentator
 from fastapi.middleware.cors import CORSMiddleware
 import logging
@@ -59,6 +59,7 @@ app.add_middleware(
 )
 
 # Include routers
+app.include_router(admin.router)
 app.include_router(login.router)
 app.include_router(rooms.router)
 app.include_router(customers.router)
