@@ -185,3 +185,22 @@ def noOfGuest(forDate: date, current_user: dict = Depends(get_current_user)):
     print(result)
     return result
 
+@router.get("/byID/{booking_id}", description = "list all the bookings since the date, if the date is not provided the default date is since Jan 1, 2020")
+async def getBookingByID(
+    booking_id: int = Path(description="Booking ID", example = 1), 
+    current_user: dict = Depends(get_current_user)):
+    if utils.isAuthorized(current_user, ["admin", 'manager', 'owner']) == False:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
+    try:
+        booking = helper.getBookingByID(booking_id)
+        return {
+            "status": status.HTTP_200_OK,
+            "booking": booking
+        }
+    except helper.BookingNotFoundException as e:
+        logger.error(f"Booking Not Found Exception in getBookingByID: {e}")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Booking Not Found")
+    except Exception as e:
+        logger.error(f"Exception in getBookingByID: {e}")
+        traceback.print_exc()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Not able to get all the bookings")

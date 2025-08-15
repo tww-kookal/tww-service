@@ -17,3 +17,8 @@ class DuplicateUserException(Exception):
     def __init__(self, message="Username already registered"):
         self.message = message
         super().__init__(self.message) # Call the parent class's __init__
+
+class BookingNotFoundException(Exception):    
+    def __init__(self, message="Booking Not Found"):
+        self.message = message
+        super().__init__(self.message) # Call the parent class's __init__

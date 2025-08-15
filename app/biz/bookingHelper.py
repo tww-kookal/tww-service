@@ -1,7 +1,7 @@
 from ..data import roomsDB, usersDB, customersDB, bookingDB
 from . import usersHelper as userHelper
 from . import roomsHelper as roomHelper
-from .BizExceptions import CustomerNotAvailableException, RoomNotAvailableException
+from .BizExceptions import CustomerNotAvailableException, RoomNotAvailableException, BookingNotFoundException
 import traceback
 import logging
 from datetime import date
@@ -101,3 +101,10 @@ def getSelectedRoom(check_in: date, check_out: date, number_of_peope: int, room_
     if isRoomAvailable == False:
         logger.info(f"Selected Room not available")
         raise RoomNotAvailableException("Selected Room not available")
+
+def getBookingByID(booking_id: int):
+    booking = bookingDB.getBookingById(booking_id)
+    if not booking:
+        logger.error(f"Booking not found for id {booking_id}")
+        raise BookingNotFoundException(f"Booking not found for id {booking_id}")
+    return booking
