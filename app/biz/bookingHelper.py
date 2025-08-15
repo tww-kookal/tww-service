@@ -45,13 +45,13 @@ def bookRoom(booking: dict, is_update=False):
         if not is_same_booking:
             #Check for room availability
             #Check if the selected room is available
-            selectedRoom = roomHelper.getSelectedRoom(booking["check_in"], booking["check_out"], booking["number_of_people"], booking["room_id"])
+            selectedRoom = getSelectedRoom(booking["check_in"], booking["check_out"], booking["number_of_people"], booking["room_id"])
             if not selectedRoom:
                 logger.error(f"Selected Room not available")
                 raise RoomNotAvailableException("Selected Room not available for the dates")            
         bookedRoom = bookingDB.updateBookingDB(booking)
     else:
-        selectedRoom = roomHelper.getSelectedRoom(booking["check_in"], booking["check_out"], booking["number_of_people"], booking["room_id"])
+        selectedRoom = getSelectedRoom(booking["check_in"], booking["check_out"], booking["number_of_people"], booking["room_id"])
         if not selectedRoom:
             logger.error(f"Selected Room not available")
             raise RoomNotAvailableException("Selected Room not available for the dates")
@@ -83,3 +83,21 @@ def guestsForDay(forDate: date):
         logger.error(f"Exception in no_of_guest: {e}")
         traceback.print_exc()
         raise Exception("Not able to get the number of guests")
+
+def getSelectedRoom(check_in: date, check_out: date, number_of_peope: int, room_id: int):
+    availableRooms = bookingDB.queryAvailableRoomsDB(
+        check_in, check_out, number_of_peope
+    )
+    if not availableRooms or len(availableRooms) == 0:
+        logger.error(f"No available rooms for the given date range")
+        raise RoomNotAvailableException()
+    
+    isRoomAvailable = False
+    
+    for availableRoom in availableRooms :
+        if availableRoom["room_id"] == room_id:
+            return availableRoom
+
+    if isRoomAvailable == False:
+        logger.info(f"Selected Room not available")
+        raise RoomNotAvailableException("Selected Room not available")
