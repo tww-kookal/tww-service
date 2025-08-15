@@ -17,6 +17,7 @@ class Settings:
     MYSQL_USER = os.getenv("MYSQL_USER")
     MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD")
     MYSQL_DATABASE = os.getenv("MYSQL_DATABASE")
+    MYSQL_PORT = os.getenv("MYSQL_PORT")
     SECRET_KEY = os.getenv("SECRET_KEY")
     ALGORITHM = os.getenv("ALGORITHM")
     LOG_LEVEL = int(os.getenv("LOG_LEVEL", 20)) 
