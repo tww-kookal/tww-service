@@ -1,5 +1,6 @@
 web: uvicorn app.main:app --host 0.0.0.0 --port $PORT
 
+mariadb --only-binary=:all:1.1.13
 
 TWILIO - API - 
   ZMDJ9ML41QBGZPVZKXRMD6S1
