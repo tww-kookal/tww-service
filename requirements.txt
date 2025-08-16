@@ -1,4 +1,3 @@
-mariadb --only-binary=:all:1.1.13
 annotated-types==0.7.0
 anyio==4.10.0
 bcrypt==4.0.1
