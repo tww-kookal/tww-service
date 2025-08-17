@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 from app.backend import bookingDB, customersDB, usersDB
 
-def load_csv_and_insert_bookings(csv_filename="bookings-_2025-07-01_to_2025-07-31_.csv"):
+def load_csv_and_insert_bookings(csv_filename="bookings-_2025-06-01_to_2025-06-30_.csv"):
     print(f"Loading CSV file: {csv_filename}")
     input_path = os.path.join(os.path.dirname(__file__), csv_filename)
     failure_rows = []
@@ -21,7 +21,7 @@ def load_csv_and_insert_bookings(csv_filename="bookings-_2025-07-01_to_2025-07-3
 
             try:
                 # Check or insert customer
-                customer_name = row.get("\ufeffcustomer_name")
+                customer_name = row.get("customer_name")
                 phone = row.get("phone")
                 customer = None
                 print()
@@ -30,6 +30,7 @@ def load_csv_and_insert_bookings(csv_filename="bookings-_2025-07-01_to_2025-07-3
                     existing_customers = customersDB.queryCustomerByNameAndPhoneDB(customer_name, phone)
                     if existing_customers:
                         customer = existing_customers[0]
+                        print(f"found :: ", end="")
                     else:
                         new_customer = {
                             "customer_name": customer_name,
@@ -41,6 +42,7 @@ def load_csv_and_insert_bookings(csv_filename="bookings-_2025-07-01_to_2025-07-3
                             "country": row.get("country") or "NO_COUNTRY",
                             "zip_code": row.get("zip_code") or "NO_ZIP",
                         }
+                        print(f"create :: ", end="")
                         customer = customersDB.createCustomerDB(new_customer)
                 if customer:
                     customer_status = "PASSED"
@@ -83,34 +85,43 @@ def load_csv_and_insert_bookings(csv_filename="bookings-_2025-07-01_to_2025-07-3
                 check_in = datetime.strptime(row.get("check_in"), "%Y-%m-%d").date() if row.get("check_in") else None
                 booking_date = datetime.strptime(row.get("booking_date"), "%Y-%m-%d").date() if row.get("booking_date") else check_in
                 
+                
+                int(row.get("room_id") or 0),
+                int(row.get("number_of_people") or 0),
+                float(row.get("room_price") or 0),
+                float(row.get("advance_payment") or 0),
+                float(row.get("total_price") or 0),
+                float(row.get("commission") or 0),
+                float(row.get("balance_to_pay") or 0),
+                print(f"SET :::", end="")
                 # Prepare booking dict
                 booking = {
                     "customer_id": customer["customer_id"],
                     "room_id": int(row.get("room_id") or 0),
-                    "number_of_people": int(row.get("number_of_people")) or 0,
+                    "number_of_people": int(row.get("number_of_people") or 0),
                     "check_in": check_in,
                     "check_out": datetime.strptime(row.get("check_out"), "%Y-%m-%d").date() if row.get("check_out") else None,
                     "status": row.get("status") or "confirmed",
                     "booking_date": booking_date,
                     "booked_by_id": 13, #BATCH_JOB_USER
                     "source_of_booking_id": source_user["user_id"],
-                    "room_price": float(row.get("room_price")) or 0,
-                    "advance_payment": float(row.get("advance_payment") or 0) or 0,
+                    "room_price": float(row.get("room_price") or 0),
+                    "advance_payment": float(row.get("advance_payment") or 0),
                     "advance_paid_to": advance_paid_to_user["user_id"] or None,
                     "advance_payment_method": 'GPAY',
-                    "food_price": float(row.get("food_price")) or 0,
-                    "service_price": float(row.get("service_price")) or 0,
+                    "food_price": float(row.get("food_price") or 0),
+                    "service_price": float(row.get("service_price") or 0),
                     "tax_percent": 0,
                     "tax_price": 0,
                     "discount_price": 0,
-                    "total_price": float(row.get("total_price")) or 0,
+                    "total_price": float(row.get("total_price") or 0),
                     "final_price_paid_to": balance_paid_user["user_id"] or None,
                     "is_final_price_paid": (row.get("is_final_price_paid") or "0").lower() == 1,
                     "final_price_payment_method": 'GPAY',
-                    "commission": float(row.get("commission")) or 0,
+                    "commission": float(row.get("commission") or 0),
                     "is_commission_settled": (row.get("is_commission_settled") or "0").lower() == 1,
                     "remarks": row.get("remarks") or "",
-                    "balance_to_pay": float(row.get("balance_to_pay") or 0) or 0,
+                    "balance_to_pay": float(row.get("balance_to_pay") or 0),
                     "is_balance_paid": (row.get("is_balance_paid") or "0").lower() == 1,
                     "balance_paid_to": balance_paid_user["user_id"] or None,
                     "balance_payment_method": 'GPAY',
@@ -121,12 +132,13 @@ def load_csv_and_insert_bookings(csv_filename="bookings-_2025-07-01_to_2025-07-3
                     failure_rows.append({**row, "customer_status": customer_status, "source_of_booking_status": source_of_booking_status, "advance_paid_to_status": advance_paid_to_status, "balance_paid_to_status": balance_paid_to_status, "over_all_status": over_all_status})
                     continue
 
-                print(f"Booking Object :::::::", end = "")
+                print(f"Booking Object ::::::: {booking["room_id"]}", end = "")
                 bookingDB.persistBookingDB(booking)
 
             except Exception as e:
+                print(f":::Exception ::: {e}")
                 over_all_status = "FAILED"
-                failure_rows.append({**row, "customer_status": customer_status, "source_of_booking_status": source_of_booking_status, "over_all_status": over_all_status})
+                failure_rows.append({**row, "customer_status": customer_status, "source_of_booking_status": source_of_booking_status, "advance_paid_to_status": advance_paid_to_status, "balance_paid_to_status": balance_paid_to_status, "over_all_status": over_all_status})
 
     # Write failures to separate CSV
     if failure_rows:

@@ -1,0 +1,26 @@
+﻿slno,room_id,customer_name,phone,number_of_people,check_in,check_out,booking_date,status,source_of_booking,room_price,advance_payment,advance_paid_to,food_price,service_price,total_price,commission,balance_to_pay,remarks,is_commission_settled,is_final_price_paid,balance_paid_to,is_balance_paid
+1,2,Bavani shankar,NO_PHONE,3,2025-06-02,2025-06-03,,Confirmed,Sangeetha,4000,1000,,2400,,6400,320,5400,Cash to vicky,1,1,,1
+2,3,Bavani shankar,NO_PHONE,2,2025-06-02,2025-06-03,,Confirmed,Sangeetha,4500,0,,,,4500,360,4500,Cash to vicky,1,1,,1
+3,3,Hema,8056143200,2,2025-06-04,2025-06-05,2025-05-19,Confirmed,Sangeetha,3500,500,,450,,3950,280,3450,,1,1,,1
+4,3,Negi Sukanya,NO_PHONE,2,2025-06-06,2025-06-08,,Confirmed,Sangeetha,7000,3500,,,,7000,560,3500,,1,1,,1
+5,4,Negi Sukanya,NO_PHONE,2,2025-06-06,2025-06-08,,Confirmed,Sangeetha,7000,3500,,4110,,11110,560,7610,,1,1,,1
+6,1,Jeevan D,9739583582,5,2025-06-07,2025-06-08,,Confirmed,Sangeetha,7500,2000,,1050,,8550,600,6550,,1,1,,1
+7,1,Jeevan,NO_PHONE,5,2025-06-07,2025-06-08,,Confirmed,Sangeetha,7500,2000,Anika,1050,,8550,600,6550,,1,1,,1
+8,1,Ramesh,NO_PHONE,5,2025-06-08,2025-06-10,,Confirmed,Sangeetha,15000,7500,,,,15000,1200,7500,,1,1,,1
+9,1,Ramesh,NO_PHONE,5,2025-06-08,2025-06-09,,Confirmed,Sangeetha,7500,7500,Anika,1170,,8670,600,1170,,1,1,,1
+10,2,Abdul Samad,NO_PHONE,4,2025-06-08,2025-06-09,,Confirmed,Sangeetha,7000,3500,,,,7000,560,3500,,1,1,,1
+11,2,Sivaraj,NO_PHONE,4,2025-06-10,2025-06-11,,Confirmed,Sangeetha,7000,3500,,3490,,10490,560,6990,,1,1,,1
+12,2,Prabshsrsn Rathna Murugan,NO_PHONE,2,2025-06-12,2025-06-13,,Confirmed,Sangeetha,5250,0,,,,5250,420,5250,,1,1,,1
+13,1,Bibin Emmanual Sanjith,9342471505,6,2025-06-13,2025-06-15,,Confirmed,Sangeetha,19200,5000,,,,19200,1536,14200,,1,1,,1
+14,3,Prabshsrsn Rathna Murugan,NO_PHONE,2,2025-06-13,2025-06-14,,Confirmed,Sangeetha,5250,0,,950,,6200,420,6200,,1,1,,1
+15,1,Surabhi,NO_PHONE,5,2025-06-14,2025-06-15,,Confirmed,Sangeetha,8500,4000,,1380,,9880,680,5880,,1,1,,1
+16,2,Nivas,NO_PHONE,3,2025-06-14,2025-06-15,,Confirmed,walkin,6000,0,,1020,,7020,0,7020,,1,1,,1
+17,1,Selvadurai,8126606000,7,2025-06-15,2025-06-16,,Confirmed,ganeshagent,15000,11800,,2990,,17990,1500,6190,,1,1,,1
+18,2,Celcia,NO_PHONE,3,2025-06-21,2025-06-22,,Confirmed,Sangeetha,6000,3000,,630,,6630,480,3630,,1,1,,1
+19,1,Tholkappian vigneshvaran,9345831303,7,2025-06-21,2025-06-23,,Confirmed,Sangeetha,18000,9000,,1830,,19830,1440,10830,,1,1,,1
+20,2,Roy Ranjan,NO_PHONE,3,2025-06-24,2025-06-25,,Confirmed,Sangeetha,0,0,,0,,0,0,0,,0,0,,0
+21,1,Daniel Jose,NO_PHONE,5,2025-06-27,2025-06-28,,Confirmed,Sangeetha,8750,2500,,1140,,9890,700,7390,,1,1,,1
+22,1,Daniel jose,NO_PHONE,5,2025-06-27,2025-06-28,,Confirmed,Sangeetha,8750,2500,,,,8750,700,6250,,1,1,,1
+23,1,Indhumathi,7305664224,3,2025-06-29,2025-07-01,,Confirmed,Sangeetha,14000,7000,,1730,,15730,1120,8730,,1,1,,1
+24,4,Rafiq,6374879834,2,2025-06-29,2025-06-30,,Confirmed,Sangeetha,3000,0,,,,3000,240,3000,,1,1,,1
+25,3,Valarmathi,9597962294,2,2025-06-30,2025-07-01,,Confirmed,Sangeetha,4000,2000,,540,,4540,320,2540,,1,1,,1

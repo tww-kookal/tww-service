@@ -6,49 +6,67 @@ import traceback
 logger = logging.getLogger("tww.service.customersDB")
 
 def queryAllCustomersDB():
-    conn = database.get_connection()
-    cursor = conn.cursor(dictionary=True)
-    query = """
-        SELECT customer_id, full_name as customer_name, email, phone, area, 
-        city, state, country, zip_code 
-        FROM customers 
-        ORDER BY customer_name
-    """
-    cursor.execute(query)
-    customers = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return customers
+    try:
+        conn = database.get_connection()
+        cursor = conn.cursor(dictionary=True)
+        query = """
+            SELECT customer_id, full_name as customer_name, email, phone, area, 
+            city, state, country, zip_code 
+            FROM customers 
+            ORDER BY customer_name
+        """
+        cursor.execute(query)
+        customers = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return customers
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
 
 def queryCustomerByIDDB(customer_id: int):
-    conn = database.get_connection()
-    cursor = conn.cursor(dictionary=True)
-    query = """
-        SELECT customer_id, full_name as customer_name, email, phone, area, 
-        city, state, country, zip_code 
-        FROM customers 
-        WHERE customer_id = %s
-    """
-    cursor.execute(query, (customer_id,))
-    customer = cursor.fetchone()
-    cursor.close()
-    conn.close()
-    return customer
+    try:
+        conn = database.get_connection()
+        cursor = conn.cursor(dictionary=True)
+        query = """
+            SELECT customer_id, full_name as customer_name, email, phone, area, 
+            city, state, country, zip_code 
+            FROM customers 
+            WHERE customer_id = %s
+        """
+        cursor.execute(query, (customer_id,))
+        customer = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        return customer
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
 
 def queryCustomerByNameAndPhoneDB(customer_name: str, phone: str):
-    conn = database.get_connection()
-    cursor = conn.cursor(dictionary=True)
-    query = """
-        SELECT customer_id, full_name as customer_name, email, phone, area, 
-        city, state, country, zip_code 
-        FROM customers 
-        WHERE full_name = %s AND phone = %s
-    """
-    cursor.execute(query, (customer_name, phone))
-    customer = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return customer
+    try:
+        conn = database.get_connection()
+        cursor = conn.cursor(dictionary=True)
+        query = """
+            SELECT customer_id, full_name as customer_name, email, phone, area, 
+            city, state, country, zip_code 
+            FROM customers 
+            WHERE full_name = %s AND phone = %s
+        """
+        cursor.execute(query, (customer_name, phone))
+        customer = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return customer
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
 
 
 def createCustomerDB(customer):
@@ -78,13 +96,16 @@ def createCustomerDB(customer):
         ))
         customer["customer_id"] = cursor.lastrowid
         conn.commit()
-        cursor.close()
-        conn.close()
         return customer
     except Exception as e:
         logger.error(f"Exception in createCustomerDB: {e}")
         traceback.print_exc()
         raise e
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()    
 
 
 def updateCustomerDB(customer):
@@ -110,10 +131,13 @@ def updateCustomerDB(customer):
             customer["customer_id"] if customer["customer_id"] is not None else None,
         ))
         conn.commit()
-        cursor.close()
-        conn.close()
         return customer
     except Exception as e:
         logger.error(f"Exception in updateCustomerDB: {e}")
         traceback.print_exc()
         raise e
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()

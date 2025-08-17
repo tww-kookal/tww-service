@@ -17,4 +17,8 @@ def execute(script):
         logger.error(f"Error while executing string: {script}")
         logger.error(f"Exception {e}")
         return False
-    
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()

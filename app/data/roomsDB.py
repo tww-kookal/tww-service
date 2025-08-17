@@ -6,13 +6,17 @@ from datetime import date
 logger = logging.getLogger("tww.service.roomsdb")
 
 def queryAllRoomsDB():
-    conn = database.get_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM rooms")
-    rooms = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return rooms
+    try:
+        conn = database.get_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM rooms")
+        rooms = cursor.fetchall()
+        return rooms
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
 
 def createRoomDB(room):
     conn = database.get_connection()
@@ -27,38 +31,54 @@ def createRoomDB(room):
                    (room["room_name"], room["min_capacity"], room["max_capacity"], room["number_of_beds"], room["number_of_bathrooms"]))
         room["room_id"] = cursor.lastrowid
         conn.commit()
-        cursor.close()
-        conn.close()
         return room
     except Exception as e:
         logger.error(f"Exception in createRoomDB: {e}")
         traceback.print_exc()
         raise e
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+    
 
 def queryRoomByNameDB(room_name):
-    conn = database.get_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM rooms WHERE room_name = %s", (room_name,))
-    room = cursor.fetchone()
-    cursor.close()
-    conn.close()
-    return room
+    try:
+        conn = database.get_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM rooms WHERE room_name = %s", (room_name,))
+        room = cursor.fetchone()
+        return room
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
 
 def queryRoomById(room_id):
-    conn = database.get_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM rooms WHERE room_id = %s", (room_id,))
-    room = cursor.fetchone()
-    cursor.close()
-    conn.close()
-    return room
+    try:
+        conn = database.get_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM rooms WHERE room_id = %s", (room_id,))
+        room = cursor.fetchone()
+        return room
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
 
 def queryRolesDB():
-    conn = database.get_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT role_id, role_name FROM roles")
-    roles = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return roles
+    try:
+        conn = database.get_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT role_id, role_name FROM roles")
+        roles = cursor.fetchall()
+        return roles
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
 
