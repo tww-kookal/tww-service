@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 from app.backend import bookingDB, customersDB, usersDB
 
-def load_csv_and_insert_bookings(csv_filename="bookings-_2025-06-01_to_2025-06-30_.csv"):
+def load_csv_and_insert_bookings(csv_filename="bookings-_2025-06-01_to_2025-06-30_completed.csv"):
     print(f"Loading CSV file: {csv_filename}")
     input_path = os.path.join(os.path.dirname(__file__), csv_filename)
     failure_rows = []
@@ -18,8 +18,7 @@ def load_csv_and_insert_bookings(csv_filename="bookings-_2025-06-01_to_2025-06-3
             source_of_booking_status = "FAILED"
             advance_paid_to_status = "FAILED"
             balance_paid_to_status = "FAILED"
-
-            try:
+            try:                
                 # Check or insert customer
                 customer_name = row.get("customer_name")
                 phone = row.get("phone")
@@ -56,7 +55,8 @@ def load_csv_and_insert_bookings(csv_filename="bookings-_2025-06-01_to_2025-06-3
                 if source_user:
                     source_of_booking_status = "PASSED"
 
-                print(f"Source {source_username}", end = ":: ")
+                print(f"Source", end = " : ")
+                print(f"{source_user['username']}", end = " :: ")
                 # Fetch Advance Paid To user
                 advance_paid_to = row.get("advance_paid_to") or ''
                 advance_paid_to_user = {"user_id": None}
@@ -103,7 +103,7 @@ def load_csv_and_insert_bookings(csv_filename="bookings-_2025-06-01_to_2025-06-3
                     "check_out": datetime.strptime(row.get("check_out"), "%Y-%m-%d").date() if row.get("check_out") else None,
                     "status": row.get("status") or "confirmed",
                     "booking_date": booking_date,
-                    "booked_by_id": 13, #BATCH_JOB_USER
+                    "booked_by_id": 10, #BATCH_JOB_USER
                     "source_of_booking_id": source_user["user_id"],
                     "room_price": float(row.get("room_price") or 0),
                     "advance_payment": float(row.get("advance_payment") or 0),

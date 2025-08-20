@@ -4,7 +4,7 @@ import traceback
 import logging
 from fastapi.security import OAuth2PasswordBearer
 from datetime import date
-from ..auth import get_current_user
+from .. import auth
 from ..biz import roomsHelper as helper
 from .. import utils
 
@@ -28,10 +28,7 @@ class RoomModel (BaseModel):
     number_of_bathrooms: int
 
 @router.get("/", response_model= None)
-async def listRooms(current_user: dict = Depends(get_current_user)):
-    if utils.isAuthorized(current_user, ["self"]) == False:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
-
+async def listRooms(authorized_user: dict = Depends(auth.authorizedUser(["self"]))):
     rooms = helper.getAllRooms()
     return {
         "status": status.HTTP_200_OK,
@@ -39,10 +36,7 @@ async def listRooms(current_user: dict = Depends(get_current_user)):
     }
 
 @router.get("/byName/{room_name}", response_model= None)
-async def getRoomByName(room_name: str, current_user: dict = Depends(get_current_user)):
-    if utils.isAuthorized(current_user, ["self"]) == False:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
-
+async def getRoomByName(room_name: str, authorized_user: dict = Depends(auth.authorizedUser(["self"]))):
     room = helper.getRoomByName(room_name)
     if room is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room not found")
@@ -52,9 +46,7 @@ async def getRoomByName(room_name: str, current_user: dict = Depends(get_current
     }
 
 @router.post("/create")
-async def createRoom(room: RoomModel, current_user: dict = Depends(get_current_user)):
-    if utils.isAuthorized(current_user, ["admin"]) == False:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
+async def createRoom(room: RoomModel, authorized_user: dict = Depends(auth.authorizedUser(["admin"]))):
     try:
         createdRoom = helper.createRoom(room.model_dump())
         return {

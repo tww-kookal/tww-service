@@ -16,7 +16,7 @@ def queryUser(username: str):
 
 def createUser(user: dict):
     if queryUser(user["username"]):
-        raise DuplicateUserException(detail="Username already registered")
+        raise DuplicateUserException(message="Username already registered")
 
     if "password" not in user:
         user["password"] = "password@123"
@@ -33,7 +33,7 @@ def updateUserDetail(user: dict):
     #if the userFound is not availble then raise an exception
 
     if not userFound:
-        raise UserNotAvailableException(detail="User not available")
+        raise UserNotAvailableException(message = "User not available")
 
     if "booking_commission" not in user:
         user["booking_commission"] = 0.0

@@ -18,7 +18,6 @@ def queryUserDB(username: str):
         if conn:
             conn.close()
 
-
 def queryUserByIdDB(user_id):
     try:
         conn = database.get_connection()

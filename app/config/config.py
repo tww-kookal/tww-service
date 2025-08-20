@@ -22,5 +22,6 @@ class Settings:
     ALGORITHM = os.getenv("ALGORITHM")
     LOG_LEVEL = int(os.getenv("LOG_LEVEL", 20)) 
     ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30))
+    GOOGLE_APP_CLIENT_ID = os.getenv("GOOGLE_APP_CLIENT_ID")
 
 settings = Settings()

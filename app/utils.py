@@ -3,7 +3,7 @@ from jose import jwt
 import logging
 from passlib.context import CryptContext
 from .config.config import settings
-from .data.usersDB import queryRolesForUserDB
+from .data import usersDB
 
 ####### Logger ############
 logger = logging.getLogger("tww.service.utils")
@@ -26,18 +26,18 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 
-def isAuthorized(userName: str, authorizedRoles: list):
-    #Connect to to database and get all the roles for this user
-    userRoles = queryRolesForUserDB(userName)
-    logger.debug(f"Roles for the User: {userRoles}")
-    logger.debug(f"Roles Expected User: {authorizedRoles}")
-    if userRoles is None:
-        userRoles = []
-    userRoles.append('self')
+# def isAuthorized(userName: str, authorizedRoles: list):
+#     #Connect to to database and get all the roles for this user
+#     userRoles = usersDB.queryRolesForUserDB(userName)
+#     logger.debug(f"Roles for the User: {userRoles}")
+#     logger.debug(f"Roles Expected User: {authorizedRoles}")
+#     if userRoles is None:
+#         userRoles = []
+#     userRoles.append('self')
     
-    # check for either of the authorized roles is in the user roles
-    for role in userRoles:
-        if role in authorizedRoles:
-            return True
-    return False
+#     # check for either of the authorized roles is in the user roles
+#     for role in userRoles:
+#         if role in authorizedRoles:
+#             return True
+#     return False
 

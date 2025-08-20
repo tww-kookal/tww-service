@@ -4,10 +4,8 @@ import traceback
 import logging
 from fastapi.security import OAuth2PasswordBearer
 from datetime import date
-from ..auth import get_current_user
-from ..data import database
+from .. import auth
 from ..biz import bookingHelper as helper, BizExceptions as exceptions
-from .. import utils
 
 ######## Logging ########
 logger = logging.getLogger("tww.service.booking")
@@ -58,10 +56,8 @@ async def check_room_availability(
     check_in_date: date = Query(..., description="Check-in date in YYYY-MM-DD format", example = "2025-09-27"), 
     check_out_date: date = Query(..., description="Check-out date in YYYY-MM-DD format always greater than the check in date", example = "2025-09-29"), 
     number_of_people: int = Query(..., description="Number of people to be greater than zero", example = 2),    
-    current_user: dict = Depends(get_current_user)):
+    authorized_user: dict = Depends(auth.authorizedUser(["manager", 'agent', 'owner'])) ):
 
-    if utils.isAuthorized(current_user, ["manager", 'agent', 'owner']) == False:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
     available_rooms = helper.getAvailableRooms(check_in_date, check_out_date, number_of_people)
 
     return {
@@ -70,13 +66,10 @@ async def check_room_availability(
     }
 
 @router.post("/updateBooking")
-def update_booking(booking: BookingModel, current_user: str = Depends(get_current_user)):
-    if utils.isAuthorized(current_user, ["manager", 'agent', 'owner']) == False:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
-
+def update_booking(booking: BookingModel,authorized_user: dict = Depends(auth.authorizedUser(["manager", 'agent', 'owner'])) ):
     try:
         bookingDict = booking.model_dump()
-        bookingDict["booked_by"] = current_user
+        bookingDict["booked_by"] = authorized_user['user_name']
         booking = helper.bookRoom(bookingDict, is_update=True)
         return {
             "status": status.HTTP_200_OK,
@@ -98,13 +91,10 @@ def update_booking(booking: BookingModel, current_user: str = Depends(get_curren
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Not able to book the room")
 
 @router.post("/createBooking")
-def book_room(booking: BookingModel, current_user: str = Depends(get_current_user)):
-    if utils.isAuthorized(current_user, ["manager", 'agent', 'owner']) == False:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
-
+def book_room(booking: BookingModel,authorized_user: dict = Depends(auth.authorizedUser(["manager", 'agent', 'owner'])) ):
     try:
         bookingDict = booking.model_dump()
-        bookingDict["booked_by"] = current_user
+        bookingDict["booked_by"] = authorized_user['user_name']
         booking = helper.bookRoom(bookingDict, is_update=False)
         return {
             "status": status.HTTP_200_OK,
@@ -128,9 +118,7 @@ def book_room(booking: BookingModel, current_user: str = Depends(get_current_use
 @router.get("/listBookingsByCheckInDate/{checkInDate}", description = "list all the bookings since the date, if the date is not provided the default date is since Jan 1, 2020")
 async def listBookingsByCheckInDate(
     checkInDate: date = Path(description="Starting date in YYYY-MM-DD format", example = "2025-09-27"), 
-    current_user: dict = Depends(get_current_user)):
-    if utils.isAuthorized(current_user, ["admin", 'manager', 'owner']) == False:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
+    authorized_user: dict = Depends(auth.authorizedUser(["admin", 'manager', 'owner']))):
     try:
         bookings = helper.listBookingsSince(checkInDate, is_check_in_date=True)
         return {
@@ -144,9 +132,7 @@ async def listBookingsByCheckInDate(
 
 @router.get("/listAllBookings", description = "list all the bookings since the date, if the date is not provided the default date is since Jan 1, 2020")
 async def listAllBookings(
-    current_user: dict = Depends(get_current_user)):
-    if utils.isAuthorized(current_user, ["admin", 'manager', 'owner']) == False:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
+    authorized_user: dict = Depends(auth.authorizedUser(["admin", 'manager', 'owner']))):
     try:
         bookings = helper.listBookingsSince()
         return {
@@ -161,9 +147,7 @@ async def listAllBookings(
 @router.get("/listAllBookings/{startingDate}", description = "list all the bookings since the date, if the date is not provided the default date is since Jan 1, 2020")
 async def listAllBookings(
     startingDate: date = Path(description="Starting date in YYYY-MM-DD format", example = "2025-09-27"), 
-    current_user: dict = Depends(get_current_user)):
-    if utils.isAuthorized(current_user, ["admin", 'manager', 'owner']) == False:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
+    authorized_user: dict = Depends(auth.authorizedUser(["admin", 'manager', 'owner']))):
     try:
         bookings = helper.listBookingsSince(startingDate)
         return {
@@ -176,21 +160,15 @@ async def listAllBookings(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Not able to get all the bookings")
     
 @router.get("/guestsForDay/{forDate}")
-def noOfGuest(forDate: date, current_user: dict = Depends(get_current_user)):
-    if utils.isAuthorized(current_user, ["admin", 'manager', 'owner']) == False:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
-
+def noOfGuest(forDate: date, authorized_user: dict = Depends(auth.authorizedUser(["admin", 'manager', 'owner']))):
     result = helper.guestsForDay(forDate)
-
     print(result)
     return result
 
 @router.get("/byID/{booking_id}", description = "list all the bookings since the date, if the date is not provided the default date is since Jan 1, 2020")
 async def getBookingByID(
     booking_id: int = Path(description="Booking ID", example = 1), 
-    current_user: dict = Depends(get_current_user)):
-    if utils.isAuthorized(current_user, ["admin", 'manager', 'owner']) == False:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
+    authorized_user: dict = Depends(auth.authorizedUser(["admin", 'manager', 'owner']))):
     try:
         booking = helper.getBookingByID(booking_id)
         return {

@@ -2,9 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 import logging
 from pydantic import BaseModel
-from ..data import database
-from ..auth import get_current_user
-from ..utils import isAuthorized
+from .. import auth
 from ..data import rolesDB
 
 router = APIRouter(
@@ -19,13 +17,7 @@ class RoleCreate(BaseModel):
     role_name: str
 
 @router.post("/create")
-async def create_role(role: RoleCreate, current_user: dict = Depends(get_current_user)):
-    # Check if current user is admin
-    if isAuthorized(current_user, ["admin"]) == False:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="not authorized"
-        )
+async def create_role(role: RoleCreate, authorized_user: dict = Depends(auth.authorizedUser(["admin"]))):
     role_name = role.role_name
 
     logger.info(f"Role To be created: {role_name}")
@@ -42,14 +34,7 @@ async def create_role(role: RoleCreate, current_user: dict = Depends(get_current
         )
     
 @router.get("/")
-async def listRoles(current_user: dict = Depends(get_current_user)):
-    # Check if current user is admin
-    if isAuthorized(current_user, ["admin", 'manager']) == False:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="not authorized"
-        )
-
+async def listRoles(authorized_user: dict = Depends(auth.authorizedUser(["admin"]))):
     roles = rolesDB.queryRolesDB()
     return {
         "status": status.HTTP_200_OK,
