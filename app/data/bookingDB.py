@@ -60,8 +60,8 @@ def listBookingsSinceDB(startingDate: date, is_check_in_date: bool = True):
         """
 
         if is_check_in_date:
-            query += " WHERE b.check_in >= %s OR b.check_out = %s"
-            cursor.execute(query, (startingDate, startingDate, ))
+            query += " WHERE b.check_in = %s"
+            cursor.execute(query, (startingDate, ))
         else:
             query += " WHERE b.booking_date >= %s"
             cursor.execute(query, (startingDate,))
