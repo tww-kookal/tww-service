@@ -83,10 +83,10 @@ def queryRolesForUserDB(userName: str):
             return []
         return convertTupleToList(user_roles)
     finally:
-            if cursor:
-                cursor.close()
-            if conn:
-                conn.close()
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
 
 def queryAllUsersDB():
     try:

@@ -173,19 +173,3 @@ async def getBookingByID(
         logger.error(f"Exception in getBookingByID: {e}")
         traceback.print_exc()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Not able to get all the bookings")
-
-@router.get("/payments/{booking_id}")
-def getPaymentsForBooking(
-    booking_id: int = Path(description="Booking ID", example = 1), 
-    authorized_user: dict = Depends(auth.authorizedUser(["admin", 'manager', 'owner']))):
-    try:
-        payments = helper.getPaymentsForBooking(booking_id)
-        return {
-            "status": status.HTTP_200_OK,
-            "payments": payments,
-            "booking_id": booking_id
-        }
-    except Exception as e:
-        logger.error(f"Exception in getPaymentsForBooking: {e}")
-        traceback.print_exc()
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Not able to get the payments")

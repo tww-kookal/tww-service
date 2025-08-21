@@ -171,22 +171,3 @@ def persistBookingDB(booking: dict):
             cursor.close()
         if conn:
             conn.close()
-
-def queryPaymentsForBooking (booking_id : int):
-    try:
-        conn = database.get_connection()
-        cursor = conn.cursor(dictionary=True)
-        query = """
-            SELECT booking_payments_id, booking_id, payment_amount, payment_date, payment_to, payment_for, remarks
-            FROM booking_payments
-            WHERE booking_id = %s
-            ORDER BY payment_date ASC
-        """
-        cursor.execute(query, (booking_id,))
-        return cursor.fetchall()
-    finally:
-        if cursor:
-            cursor.close()
-        if conn:
-            conn.close()
-

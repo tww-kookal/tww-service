@@ -2,6 +2,7 @@ from ..data import bookingDB
 from . import roomsHelper as roomHelper
 from . import usersHelper as userHelper
 from . import customersHelper as customerHelper
+from . import paymentsHelper as paymentHelper
 from .BizExceptions import CustomerNotAvailableException, RoomNotAvailableException, BookingNotFoundException
 import traceback
 import logging
@@ -102,14 +103,5 @@ def getBookingByID(booking_id: int):
         logger.error(f"Booking not found for id {booking_id}")
         raise BookingNotFoundException(f"Booking not found for id {booking_id}")
     #Get the Payment Details for this booking
-    booking["payments"] = getPaymentsForBooking(booking_id)
-
+    booking["payments"] = paymentHelper.getPaymentsForBooking(booking_id)
     return booking
-
-def getPaymentsForBooking(booking_id: int):
-    payments = bookingDB.queryPaymentsForBooking(booking_id)
-    if payments:
-        return payments
-    else:
-        return []
-

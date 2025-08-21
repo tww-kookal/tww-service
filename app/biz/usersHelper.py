@@ -69,3 +69,6 @@ def getFullNameOfUserByID(user_id: int):
     else:
         return ''
 
+def getRolesForUser(user_name: int):
+    return userDB.queryRolesForUserDB(user_name)
+

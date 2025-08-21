@@ -8,7 +8,7 @@ from typing import List
 from pydantic import BaseModel
 
 from ..biz import usersHelper as helper
-from ..data.usersDB import queryUserByIdDB, queryAllUsersDB, queryUserDB, assignRolesToUserDB, queryRolesForUserDB
+from ..data.usersDB import queryUserByIdDB, queryAllUsersDB, queryUserDB, assignRolesToUserDB
 from ..config.config import settings
 from .. import auth
 
@@ -83,6 +83,8 @@ async def googleLogin(tokenrequest: TokenRequest):
 
         userDetails = helper.getUserByUserName(userInfo["username"])
 
+        userRoles = helper.getRolesForUser(userInfo["username"])
+
         return {
             "status": status.HTTP_200_OK,
             "user": {
@@ -91,7 +93,8 @@ async def googleLogin(tokenrequest: TokenRequest):
                 "email": userDetails["email"], 
                 "name": userInfo["first_name"] + " " + userInfo["last_name"], 
                 "first_name": userInfo['first_name'], 
-                'last_name': userInfo['last_name']
+                'last_name': userInfo['last_name'],
+                "roles": userRoles
             }
         }
     except helper.UserNotAvailableException as e:
@@ -249,7 +252,7 @@ async def userRoles(username: str, authorized_user: dict = Depends(auth.authoriz
             detail="not authorized"
         )   
     try:
-        userRoles = queryRolesForUserDB(username)
+        userRoles = helper.getRolesForUser(username)
         return {
             "status": status.HTTP_200_OK,
             "user": {

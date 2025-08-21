@@ -22,3 +22,8 @@ class BookingNotFoundException(Exception):
     def __init__(self, message="Booking Not Found"):
         self.message = message
         super().__init__(self.message) # Call the parent class's __init__
+
+class PaymentExceededException(Exception):    
+    def __init__(self, message="Payment Exceeded"):
+        self.message = message
+        super().__init__(self.message) # Call the parent class's __init__

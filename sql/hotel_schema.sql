@@ -85,14 +85,16 @@ CREATE TABLE booking_payments
 (
     booking_payments_id INT AUTO_INCREMENT PRIMARY KEY,
     booking_id INT NOT NULL,    
-    payment_type ENUM('gpay', 'cash', 'bank_transfer', 'phone_pe', 'credit_card', 'debit_card') NOT NULL DEFAULT 'gpay',
+    payment_type ENUM('gpay', 'cash', 'bank', 'upi', 'cc', 'dc') NOT NULL DEFAULT 'gpay',
     payment_amount DECIMAL(10, 2) NOT NULL,
     payment_date DATE NOT NULL DEFAULT (CURDATE()),
     payment_to INT NOT NULL, 
     payment_for ENUM('advance', 'part-pay', 'balance', 'refund') NOT NULL DEFAULT 'advance',
+    payment_added_by INT NOT NULL,
     remarks TEXT,
     FOREIGN KEY (booking_id) REFERENCES bookings(booking_id) ON DELETE CASCADE,
-    FOREIGN KEY (payment_to) REFERENCES users(user_id) ON DELETE CASCADE
+    FOREIGN KEY (payment_to) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (payment_added_by) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
 -- Sample Roles
