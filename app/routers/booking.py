@@ -31,24 +31,15 @@ class BookingModel(BaseModel):
     status: str
     source_of_booking_id: int
     room_price: float
-    advance_payment: float
-    advance_paid_to: int
-    advance_payment_method: str
     food_price: float
     service_price: float
-    balance_to_pay: float
-    is_balance_paid: bool
-    balance_paid_to: int
-    balance_payment_method: str
-    commission: float
     tax_percent: float = 0
     tax_price: float = 0
     discount_price: float = 0
-    is_commission_settled: bool
     total_price: float
-    final_price_paid_to: int
-    is_final_price_paid: bool
-    final_price_payment_method: str
+    commission_percent: float
+    commission: float
+    is_commission_settled: bool
     remarks: str
 
 @router.get("/checkRoomAvailability", description = "Check room availability based on check-in date, check-out date and number of people")
@@ -58,7 +49,7 @@ async def check_room_availability(
     number_of_people: int = Query(..., description="Number of people to be greater than zero", example = 2),    
     authorized_user: dict = Depends(auth.authorizedUser(["manager", 'agent', 'owner'])) ):
 
-    available_rooms = helper.getAvailableRooms(check_in_date, check_out_date, number_of_people)
+    available_rooms = helper.getAvailableRooms(check_in_date, check_out_date, number_of_people, None)
 
     return {
         "status": status.HTTP_200_OK,
@@ -182,3 +173,19 @@ async def getBookingByID(
         logger.error(f"Exception in getBookingByID: {e}")
         traceback.print_exc()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Not able to get all the bookings")
+
+@router.get("/payments/{booking_id}")
+def getPaymentsForBooking(
+    booking_id: int = Path(description="Booking ID", example = 1), 
+    authorized_user: dict = Depends(auth.authorizedUser(["admin", 'manager', 'owner']))):
+    try:
+        payments = helper.getPaymentsForBooking(booking_id)
+        return {
+            "status": status.HTTP_200_OK,
+            "payments": payments,
+            "booking_id": booking_id
+        }
+    except Exception as e:
+        logger.error(f"Exception in getPaymentsForBooking: {e}")
+        traceback.print_exc()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Not able to get the payments")

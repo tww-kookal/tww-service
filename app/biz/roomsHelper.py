@@ -32,3 +32,11 @@ def getRoomByName(room_name: str):
         logger.error(f"Exception in getRoomByName: {e}")
         traceback.print_exc()
         return None
+
+def getRoomById(room_id: str):
+    try:
+        return roomsDB.queryRoomById(room_id)
+    except Exception as e:
+        logger.error(f"Exception in getRoomById: {e}")
+        traceback.print_exc()
+        return None

@@ -17,8 +17,6 @@ def queryAllCustomersDB():
         """
         cursor.execute(query)
         customers = cursor.fetchall()
-        cursor.close()
-        conn.close()
         return customers
     finally:
         if cursor:
@@ -38,8 +36,6 @@ def queryCustomerByIDDB(customer_id: int):
         """
         cursor.execute(query, (customer_id,))
         customer = cursor.fetchone()
-        cursor.close()
-        conn.close()
         return customer
     finally:
         if cursor:
@@ -59,8 +55,6 @@ def queryCustomerByNameAndPhoneDB(customer_name: str, phone: str):
         """
         cursor.execute(query, (customer_name, phone))
         customer = cursor.fetchall()
-        cursor.close()
-        conn.close()
         return customer
     finally:
         if cursor:

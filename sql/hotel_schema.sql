@@ -63,32 +63,36 @@ CREATE TABLE bookings (
     booked_by_id INT NOT NULL,
     source_of_booking_id INT,
     room_price DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
-    advance_payment DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
-    advance_paid_to INT,
-    advance_payment_method VARCHAR(20) DEFAULT 'GPAY',
+
     food_price DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
     service_price DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
     tax_percent DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
     tax_price DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
     discount_price DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
-    balance_to_pay DECIMAL(10, 2) NOT NULL DEFAULT 0.0,
-    is_balance_paid BOOLEAN NOT NULL DEFAULT FALSE,
-    balance_paid_to INT,
-    balance_payment_method VARCHAR(20) DEFAULT 'GPAY',
     total_price DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
-    final_price_paid_to INT,
-    final_price_payment_method VARCHAR(20) DEFAULT 'GPAY',
-    is_final_price_paid BOOLEAN NOT NULL DEFAULT FALSE,
-    commission DECIMAL(10, 2) DEFAULT 0.00,
+
+    commission_percent DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    commission DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
     is_commission_settled BOOLEAN NOT NULL DEFAULT FALSE,
     remarks TEXT,
     FOREIGN KEY (room_id) REFERENCES rooms(room_id) ON DELETE CASCADE,
     FOREIGN KEY (customer_id) REFERENCES customers(customer_id) ON DELETE CASCADE,
     FOREIGN KEY (booked_by_id) REFERENCES users(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (source_of_booking_id) REFERENCES users(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (advance_paid_to) REFERENCES users(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (final_price_paid_to) REFERENCES users(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (balance_paid_to) REFERENCES users(user_id) ON DELETE CASCADE
+    FOREIGN KEY (source_of_booking_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+CREATE TABLE booking_payments
+(
+    booking_payments_id INT AUTO_INCREMENT PRIMARY KEY,
+    booking_id INT NOT NULL,    
+    payment_type ENUM('gpay', 'cash', 'bank_transfer', 'phone_pe', 'credit_card', 'debit_card') NOT NULL DEFAULT 'gpay',
+    payment_amount DECIMAL(10, 2) NOT NULL,
+    payment_date DATE NOT NULL DEFAULT (CURDATE()),
+    payment_to INT NOT NULL, 
+    payment_for ENUM('advance', 'part-pay', 'balance', 'refund') NOT NULL DEFAULT 'advance',
+    remarks TEXT,
+    FOREIGN KEY (booking_id) REFERENCES bookings(booking_id) ON DELETE CASCADE,
+    FOREIGN KEY (payment_to) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
 -- Sample Roles
