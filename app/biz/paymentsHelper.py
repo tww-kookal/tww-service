@@ -16,22 +16,26 @@ def getPaymentsForBooking(booking_id: int):
         return []
 
 def getTotalBookingPrice(booking_id: int):
-    booking = bookingHelper.getBookingById(booking_id)
+    booking = bookingHelper.getBookingByID(booking_id)
     if not booking:
         raise BookingNotFoundException(f"Booking ID {booking_id} not found")
     return booking["total_price"] or 0
 
+def deletePayment(paymentId: int) :
+    paymentDB.deletePaymentDB(paymentId)
+
 def addPayment(payment: dict, is_update: bool = False):
-    # get existing payments
+    # get existing payments]
+    logger.debug(f"addPayment: {payment}, {is_update}")
     paymentsForBooking = getPaymentsForBooking(payment["booking_id"])
 
     validatePaymentAmount(payment, paymentsForBooking)
     payment["payment_added_by"] = userHelper.getUserByUserName(payment["payment_added_by"])["user_id"]
 
     if is_update:
-        paymentDB.updatePaymentDB(payment)
+        return paymentDB.updatePaymentDB(payment)
     else:
-        paymentDB.persistPaymentDB(payment)
+        return paymentDB.persistPaymentDB(payment)
 
 def validatePaymentAmount(payment: dict, payments: list):
     totalBookingPrice = getTotalBookingPrice(payment["booking_id"])

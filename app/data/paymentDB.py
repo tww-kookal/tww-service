@@ -10,7 +10,7 @@ def queryPaymentsForBooking (booking_id : int):
         conn = database.get_connection()
         cursor = conn.cursor(dictionary=True)
         query = """
-            SELECT booking_payments_id, booking_id, payment_amount, payment_date, payment_to, payment_for, remarks
+            SELECT booking_payments_id, booking_id, payment_amount, payment_date, payment_to, payment_for, remarks, payment_type
             FROM booking_payments
             WHERE booking_id = %s
             ORDER BY payment_date ASC
@@ -28,10 +28,10 @@ def persistPaymentDB(payment: dict):
         conn = database.get_connection()
         cursor = conn.cursor()
         query = """
-            INSERT INTO booking_payments (booking_id, payment_amount, payment_date, 
+            INSERT INTO booking_payments (booking_id, payment_amount, payment_date, payment_to,
             payment_type, payment_for, remarks, payment_added_by)
             VALUES 
-            (%s, %s, %s, %s, %s, %s, %s)
+            (%s, %s, %s, %s, %s, %s, %s, %s)
         """
         parameters = (payment["booking_id"], payment["payment_amount"], payment["payment_date"],
             payment["payment_to"], payment["payment_type"].lower(), payment["payment_for"].lower(),
@@ -64,8 +64,25 @@ def updatePaymentDB(payment: dict):
         
         cursor.execute(query, parameters)
         conn.commit()
-        payment["booking_payments_id"] = cursor.lastrowid
         return payment
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+
+def deletePaymentDB(paymentId: int):
+    try:
+        conn = database.get_connection()
+        cursor = conn.cursor()
+        query = """
+            DELETE FROM booking_payments WHERE booking_payments_id = %s
+        """
+        parameters = (paymentId,)
+        cursor.execute(query, parameters)
+        conn.commit()
+        return True
     finally:
         if cursor:
             cursor.close()

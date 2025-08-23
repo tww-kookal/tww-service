@@ -18,24 +18,56 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 from pydantic import BaseModel
 
-class PaymentModel(BaseModel):
-    booking_payment_id: int
+class PaymentAddModel (BaseModel):
     booking_id: int
     payment_amount: float
     payment_date: date
-    payment_type: str
     payment_for: str
+    payment_to: int
+    payment_type: str
     remarks: str
 
+class PaymentModel(PaymentAddModel):
+    booking_payments_id: int
+
+@router.post("/deleteById/{booking_payment_id}")
+def delete_payment(booking_payment_id: int, authorized_user: dict = Depends(auth.authorizedUser(["manager", 'agent', 'owner'])) ):
+    try:
+        helper.deletePayment(booking_payment_id)
+        return {
+            "status": status.HTTP_200_OK,
+            "message": "Payment deleted successfully"
+        }
+    except Exception as e:
+        logger.error(f"Exception in delete_payment: {e}")
+        traceback.print_exc()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Not able to delete the payment")
+
+
+@router.post("/update")
+def update_payment(payment: PaymentModel, authorized_user: dict = Depends(auth.authorizedUser(["manager", 'agent', 'owner'])) ):
+    try:
+        paymentDict = payment.model_dump()
+        paymentDict["payment_added_by"] = authorized_user['user_name']
+        payment = helper.addPayment(paymentDict, is_update=True)
+        return {
+            "status": status.HTTP_200_OK,
+            "message": "Payment updated successfully"
+        }
+    except Exception as e:
+        logger.error(f"Exception in update_payment: {e}")
+        traceback.print_exc()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Not able to update the payment")
+
 @router.post("/add")
-def add_payment(payment: PaymentModel, authorized_user: dict = Depends(auth.authorizedUser(["manager", 'agent', 'owner'])) ):
+def add_payment(payment: PaymentAddModel, authorized_user: dict = Depends(auth.authorizedUser(["manager", 'agent', 'owner'])) ):
     try:
         paymentDict = payment.model_dump()
         paymentDict["payment_added_by"] = authorized_user['user_name']
         payment = helper.addPayment(paymentDict, is_update=False)
         return {
             "status": status.HTTP_200_OK,
-            "payments": payment
+            "addedPayment": payment
         }
     except exceptions.BookingNotFoundException as e:
         logger.error(f"Booking Not Found Exception in add_payment: {e}")
