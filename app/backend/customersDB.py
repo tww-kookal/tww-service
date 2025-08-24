@@ -5,8 +5,7 @@ import traceback
 ###### Logger #########
 logger = logging.getLogger("tww.service.backend.customersDB")
 
-def queryAllCustomersDB():
-    conn = database.get_connection()
+def queryAllCustomersDB(conn):
     cursor = conn.cursor(dictionary=True)
     query = """
         SELECT customer_id, full_name as customer_name, email, phone, area, 
@@ -17,11 +16,9 @@ def queryAllCustomersDB():
     cursor.execute(query)
     customers = cursor.fetchall()
     cursor.close()
-    conn.close()
     return customers
 
-def queryCustomerByIDDB(customer_id: int):
-    conn = database.get_connection()
+def queryCustomerByIDDB(customer_id: int, conn):
     cursor = conn.cursor(dictionary=True)
     query = """
         SELECT customer_id, full_name as customer_name, email, phone, area, 
@@ -32,12 +29,9 @@ def queryCustomerByIDDB(customer_id: int):
     cursor.execute(query, (customer_id,))
     customer = cursor.fetchone()
     cursor.close()
-    conn.close()
     return customer
 
-def queryCustomerByNameAndPhoneDB(customer_name: str, phone: str):
-    conn = database.get_connection()
-
+def queryCustomerByNameAndPhoneDB(customer_name: str, phone: str, conn):
     cursor = conn.cursor(dictionary=True)
     query = """
         SELECT customer_id, full_name as customer_name, email, phone, area, 
@@ -48,14 +42,12 @@ def queryCustomerByNameAndPhoneDB(customer_name: str, phone: str):
     cursor.execute(query, (customer_name, phone))
     customer = cursor.fetchall()
     cursor.close()
-    conn.close()
     return customer
 
 
-def createCustomerDB(customer):
-    conn = database.get_connection()
+def createCustomerDB(customer, conn):
     try:
-        duplicateCustomer = queryCustomerByNameAndPhoneDB(customer["customer_name"], customer["phone"])
+        duplicateCustomer = queryCustomerByNameAndPhoneDB(customer["customer_name"], customer["phone"], conn)
         if len(duplicateCustomer) > 0:
             logger.info(f"Customer Already Exists")
             raise Exception("Customer Already Exists")
@@ -78,9 +70,7 @@ def createCustomerDB(customer):
             customer["zip_code"] if customer["zip_code"] is not None else None,
         ))
         customer["customer_id"] = cursor.lastrowid
-        conn.commit()
         cursor.close()
-        conn.close()
         return customer
     except Exception as e:
         logger.error(f"Exception in createCustomerDB: {e}")
@@ -88,8 +78,7 @@ def createCustomerDB(customer):
         raise e
 
 
-def updateCustomerDB(customer):
-    conn = database.get_connection()
+def updateCustomerDB(customer, conn):
     try:
         query = """
             UPDATE customers 
@@ -110,9 +99,7 @@ def updateCustomerDB(customer):
             customer["zip_code"] if customer["zip_code"] is not None else None,
             customer["customer_id"] if customer["customer_id"] is not None else None,
         ))
-        conn.commit()
         cursor.close()
-        conn.close()
         return customer
     except Exception as e:
         logger.error(f"Exception in updateCustomerDB: {e}")
