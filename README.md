@@ -225,5 +225,10 @@ For further details, refer to the codebase and router modules for specific param
 - Create a new branch.
 - Submit a pull request.
 
+## Notes
+- This service is designed to integrate seamlessly with the ReactJS frontend project available at https://github.com/tww-kookal/tww-booking, enabling full connectivity between the backend and the provided user interface.
+- The frontend project is a ReactJS application that consumes the API endpoints provided by this service.
+- The frontend project is available at https://github.com/tww-kookal/tww-booking.
+
 ## License
 - MIT License. See `LICENSE` file for details.
