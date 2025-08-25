@@ -22,6 +22,7 @@ TWW Service is a backend service for a hotel booking system. It provides endpoin
 
 ## Integrations
 - **Google Drive:** Secure upload of guest identity documents.
+- **Google Auth:** Secure user authentication with Google OAuth.
 - **Prometheus:** Metrics endpoint for real-time monitoring.
 
 ## Deployment
@@ -30,7 +31,6 @@ TWW Service is a backend service for a hotel booking system. It provides endpoin
 
 ## Use Cases
 - Hotel staff can manage bookings, payments, and guest records efficiently.
-- Guests can authenticate, book rooms, and make payments securely.
 - Hotel managers can monitor system health and usage via integrated metrics and reporting.
 
 ## Extensibility
