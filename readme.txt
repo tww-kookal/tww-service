@@ -7,14 +7,17 @@ TWILIO - API -
   +14155238886
   key-load
 
-#################MYSQL###################
-SELECT r.room_name, min_capacity, max_capacity
-FROM rooms r
-LEFT JOIN bookings b 
-    ON r.room_id = b.room_id
-    AND (
-        b.check_in < '2025-06-10' AND b.check_out > '2025-06-04'
-    )
-WHERE b.booking_id IS NULL
-  AND 3 BETWEEN r.min_capacity AND r.max_capacity;
-#########################################
+run tests
+  pytest 
+  python -m pytest
+  With Coverage
+    python -m pytest --cov=app tests/
+  
+  Specific File
+    python -m pytest tests/test_auth_google.py
+
+  Verbose 
+    python -m pytest -v
+
+  Stop on First Failure
+    python -m pytest -x

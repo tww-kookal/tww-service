@@ -115,6 +115,6 @@ VALUES ('admin', '$2b$12$RrR2rIF6nDZo1h5pV2n5dOZc7rfkq8Y2nZtB5T9e.XjT1u0mYpp9K',
 
 -- Pre-seeded all Roles for the Admin User
 INSERT INTO user_roles (user_id, role_id)
-VALUES (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6);
+VALUES (19, 1), (19, 2), (19, 3), (19, 4), (19, 5), (19, 6);
 
 commit;
