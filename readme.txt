@@ -13,6 +13,11 @@ run tests
   With Coverage
     python -m pytest --cov=app tests/
   
+  Coverage
+    coverage run -m pytest
+    coverage report -m
+
+
   Specific File
     python -m pytest tests/test_auth_google.py
 

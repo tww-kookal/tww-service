@@ -46,6 +46,7 @@ def test_bookRoom_success(mock_room, mock_customer, mock_persist, mock_selected,
     mock_room.return_value = {'room_name': 'Deluxe'}
     booking = {'booked_by': 'user', 'source_of_booking_id': 0, 'check_in': '2023-01-01', 'check_out': '2023-01-02', 'number_of_people': 2, 'room_id': 1}
     result = bookingHelper.bookRoom(booking)
+    assert result['booked_by'] == 'userHelper.getFullNameOfUserByID'
     assert result['customer_name'] == 'Alice'
     assert result['customer_phone'] == '123'
     assert result['room_name'] == 'Deluxe'
@@ -94,7 +95,7 @@ def test_listBookingsSince_exception(mock_list):
 @patch('app.biz.bookingHelper.bookingDB.guestsForDay')
 def test_guestsForDay_success(mock_guests):
     mock_guests.return_value = [[5]]
-    assert bookingHelper.guestsForDay(date(2023,1,1)) == [5]
+    assert bookingHelper.guestsForDay(date(2023,1,1)) == 5
 
 @patch('app.biz.bookingHelper.bookingDB.guestsForDay')
 def test_guestsForDay_exception(mock_guests):
