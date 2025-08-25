@@ -1,4 +1,44 @@
-# TWW Service API - README
+# TWW Service
+## Description
+TWW Service is a backend service for a hotel booking system. It provides endpoints for admin management, user authentication, room booking, payment processing, and reporting. It can also connect to Google Drive for uploading the identity documents of the guests who stay in the hotel.
+
+## Features
+- **Admin Management:** Create, list, and manage hotel administrators with role-based access control.
+- **User Authentication:** Secure login and Google OAuth support for guests and staff.
+- **Room Booking:** View available rooms, create bookings, and manage reservations.
+- **Payment Processing:** Create and list payments, handle errors, and manage transactions.
+- **Reporting:** Metrics and reporting endpoints, including Prometheus integration for monitoring.
+- **Google Drive Integration:** Upload and store guest identity documents securely.
+- **CORS and Security:** Configurable CORS policies to restrict API access to trusted frontend domains.
+- **Database Connection Pooling:** Efficient MySQL connection management for performance and reliability.
+
+## Architecture
+- **FastAPI Application:** The main entry point (`main.py`) initializes the app, configures routers, middleware, and logging.
+- **Routers:** Modular API endpoints for admin, booking, customers, login, payments, roles, rooms, users, and reports.
+- **Helpers:** Business logic modules for users, booking, payments, and admin operations.
+- **Data Layer:** Database modules for CRUD operations, connection pooling, and transaction management.
+- **Configuration:** Environment-based settings for database, logging, allowed origins, and integrations.
+- **Testing:** Comprehensive test suites for all modules to ensure reliability and correctness.
+
+## Integrations
+- **Google Drive:** Secure upload of guest identity documents.
+- **Prometheus:** Metrics endpoint for real-time monitoring.
+
+## Deployment
+- **Local:** Setup with Python virtual environments, dependency management, and `.env` configuration.
+- **Railway.app:** Cloud deployment with environment variable support and automated build/run processes.
+
+## Use Cases
+- Hotel staff can manage bookings, payments, and guest records efficiently.
+- Guests can authenticate, book rooms, and make payments securely.
+- Hotel managers can monitor system health and usage via integrated metrics and reporting.
+
+## Extensibility
+- Modular router and helper structure allows for easy addition of new features and endpoints.
+- Environment-driven configuration supports scaling and integration with other services.
+
+---
+TWW Service is designed for reliability, security, and ease of use, making it an ideal backend for modern hotel management systems.
 
 ## Project Structure
 ```
