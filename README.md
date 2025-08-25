@@ -128,29 +128,32 @@ PROMETHEUS_ENABLED=true LOG_LEVEL=INFO
 
 ## Local Setup
 1. **Clone the repository:**
-   ```bash
+```bash
 git clone https://github.com/your-org/tww-service.git
 cd tww-service
 ```
 
 2. **Create and activate virtual environment:**
-   ```bash
+```bash
 python -m venv venv
 venv\Scripts\activate
 ```
 
 3. **Install dependencies:**
-   ```bash
+```bash
 pip install -r requirements.txt
 ```
 
 4. **Configure .env file:**
-   Copy `.env.example` to `.env` and fill in your values.
+```
+- Copy `.env.example` to `.env` and fill in your values.
+```
 
 5. **Run the application:**
-   ```bash
+```bash
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
+
 6. **Access API:**
    - Open [http://localhost:8000/docs](http://localhost:8000/docs) for Swagger UI.
 
