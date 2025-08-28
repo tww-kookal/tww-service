@@ -14,7 +14,7 @@ CREATE TABLE users (
     last_name VARCHAR(50) NOT NULL,
     email VARCHAR(100) NOT NULL,
     phone VARCHAR(20) NOT NULL,
-    booking_commission INT DEFAULT 0
+    booking_commission DECIMAL (10, 2) NOT NULL DEFAULT 0
 );
 
 -- Create Roles - User Mapping Table
