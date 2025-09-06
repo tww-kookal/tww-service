@@ -53,7 +53,7 @@ def getUserDetailsFromIdToken(idToken: str):
         'phone' : idinfo.get('phone_number') or 'NO-PHONE',
         'picture': idinfo.get('picture') or 'NO-PICTURE',
     }
-    logger.debug(f"GetUserDetailsFromIdToken::User Info: {userDetails["email"]}")
+    #logger.debug(f"GetUserDetailsFromIdToken::User Info: {userDetails["email"]}")
     return userDetails
 
 def authorizedUser(authorizedRoles: list):
