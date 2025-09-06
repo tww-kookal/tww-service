@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from .routers import login, rooms, users, roles, reports, customers, booking, admin, payments
+from .routers import login, rooms, users, roles, reports, customers, booking, admin, payments, accounting
 from prometheus_fastapi_instrumentator import Instrumentator
 from fastapi.middleware.cors import CORSMiddleware
 import logging
@@ -41,7 +41,7 @@ logger = logging.getLogger("tww.service.main")
 
 ########## Log Setup Completed ############
 
-logger.debug(f"Database Host: {settings.MYSQL_HOST}")
+logger.debug(f"Database Host: {settings.LOG_LEVEL}")
 
 app = FastAPI()
 Instrumentator().instrument(
@@ -68,3 +68,4 @@ app.include_router(roles.router)
 app.include_router(reports.router)
 app.include_router(booking.router)
 app.include_router(payments.router)
+app.include_router(accounting.router)
