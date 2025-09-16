@@ -1,4 +1,5 @@
 venv-dev/
+ws/
 venv-railway/
 __pycache__/
 .env
