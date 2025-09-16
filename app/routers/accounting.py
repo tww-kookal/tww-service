@@ -1,4 +1,6 @@
-from fastapi import APIRouter, HTTPException, Depends, status
+from fastapi import APIRouter, HTTPException, Depends, status, Request
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from ..biz import accounting as helper
 from datetime import date
 from fastapi.security import OAuth2PasswordBearer
@@ -7,6 +9,7 @@ import logging
 import traceback
 
 router = APIRouter(prefix="/api/v1/accounting", tags=["Accounting"])
+limiter = Limiter(key_func=get_remote_address) #Incorporate Rate Limiter
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 ####### Logger ############
@@ -14,7 +17,8 @@ logger = logging.getLogger("tww.service.accounting")
 
 # Category Endpoints
 @router.get("/categories")
-def list_categories(authorized_user: dict = Depends(auth.authorizedUser(["manager", "employee", "owner"]))):
+@limiter.limit("1/second")
+def list_categories(request: Request, authorized_user: dict = Depends(auth.authorizedUser(["manager", "employee", "owner"]))):
     try:
         return {
             "status": status.HTTP_200_OK,
@@ -27,7 +31,8 @@ def list_categories(authorized_user: dict = Depends(auth.authorizedUser(["manage
         raise HTTPException(status_code=500, detail=str(e))
     
 @router.post("/expense/add")
-def add_expense(expense: dict, authorized_user: dict = Depends(auth.authorizedUser(["manager", "employee", "owner"]))):
+@limiter.limit("1/second")
+def add_expense(request: Request, expense: dict, authorized_user: dict = Depends(auth.authorizedUser(["manager", "employee", "owner"]))):
     try:
         return {
             "status": status.HTTP_201_CREATED,
@@ -40,7 +45,8 @@ def add_expense(expense: dict, authorized_user: dict = Depends(auth.authorizedUs
         raise HTTPException(status_code=500, detail=str(e))
     
 @router.post("/expense/update")
-def update_expense(expense: dict, authorized_user: dict = Depends(auth.authorizedUser(["manager", "employee", "owner"]))):
+@limiter.limit("1/second")
+def update_expense(request: Request, expense: dict, authorized_user: dict = Depends(auth.authorizedUser(["manager", "employee", "owner"]))):
     try:
         return {
             "status": status.HTTP_201_CREATED,
@@ -53,7 +59,8 @@ def update_expense(expense: dict, authorized_user: dict = Depends(auth.authorize
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/expense/deleteById/{expenseId}")
-def delete_expense(expenseId: int, authorized_user: dict = Depends(auth.authorizedUser(["manager", "employee", "owner"]))):
+@limiter.limit("1/second")
+def delete_expense(request: Request, expenseId: int, authorized_user: dict = Depends(auth.authorizedUser(["manager", "employee", "owner"]))):
     try:
         return {
             "status": status.HTTP_201_CREATED,
@@ -66,7 +73,8 @@ def delete_expense(expenseId: int, authorized_user: dict = Depends(auth.authoriz
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/expenses")
-def list_entries(authorized_user: dict = Depends(auth.authorizedUser(["manager", "owner"]))):
+@limiter.limit("1/second")
+def list_entries(request: Request, authorized_user: dict = Depends(auth.authorizedUser(["manager", "owner"]))):
     try:
         return {
             "status": status.HTTP_200_OK,
@@ -77,7 +85,8 @@ def list_entries(authorized_user: dict = Depends(auth.authorizedUser(["manager",
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/expenses/{expenseDate}")
-def list_entries(expenseDate: date, authorized_user: dict = Depends(auth.authorizedUser(["manager", "owner"]))):
+@limiter.limit("1/second")
+def list_entries(request: Request, expenseDate: date, authorized_user: dict = Depends(auth.authorizedUser(["manager", "owner"]))):
     try:
         return {
             "status": status.HTTP_200_OK,
@@ -88,7 +97,8 @@ def list_entries(expenseDate: date, authorized_user: dict = Depends(auth.authori
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/payment/forBookingID/{bookingId}")
-def list_entries(bookingId: int, authorized_user: dict = Depends(auth.authorizedUser(["manager", "owner"]))):
+@limiter.limit("1/second")
+def list_entries(request: Request, bookingId: int, authorized_user: dict = Depends(auth.authorizedUser(["manager", "owner"]))):
     try:
         return {
             "status": status.HTTP_200_OK,

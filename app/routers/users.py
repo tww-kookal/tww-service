@@ -1,5 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from google.oauth2 import id_token
 from google.auth.transport import requests
 import logging
@@ -19,6 +21,7 @@ router = APIRouter(
     prefix="/api/v1/users",  # all routes start with /api/v1/users
     tags=["Users"]    # OpenAPI grouping
 )
+limiter = Limiter(key_func=get_remote_address) #Incorporate Rate Limiter
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 ######## Curl API Sample ##########
@@ -52,7 +55,8 @@ class TokenRequest(BaseModel):
     token: str    
 
 @router.post("/googleAuth/signup")
-async def googleSignup(tokenrequest: TokenRequest):
+@limiter.limit("1/second")
+async def googleSignup(request: Request, tokenrequest: TokenRequest):
     try:
         userInfo = auth.getUserDetailsFromAccessToken(tokenrequest.token)
         createdUser = helper.createUser(userInfo)
@@ -75,7 +79,8 @@ async def googleSignup(tokenrequest: TokenRequest):
         )
 
 @router.post("/googleAuth/login")
-async def googleLogin(tokenrequest: TokenRequest):
+@limiter.limit("1/second")
+async def googleLogin(request: Request, tokenrequest: TokenRequest):
     try:
         logger.debug(f"GoogleLogin::Token Request: {tokenrequest}")
 
@@ -109,7 +114,8 @@ async def googleLogin(tokenrequest: TokenRequest):
         )
 
 @router.post("/auth/google")
-async def auth_google(data: TokenRequest):
+@limiter.limit("1/second")
+async def auth_google(request: Request, data: TokenRequest):
     try:
         # Verify token with Google
         idinfo = id_token.verify_oauth2_token(
@@ -126,7 +132,8 @@ async def auth_google(data: TokenRequest):
         raise HTTPException(status_code=400, detail="Invalid Google token")
     
 @router.get("/")
-async def list(authorized_user: dict = Depends(auth.authorizedUser(["admin"])) ):
+@limiter.limit("1/second")
+async def list(request: Request, authorized_user: dict = Depends(auth.authorizedUser(["admin"])) ):
     users = queryAllUsersDB()
     return {
         "status": status.HTTP_200_OK,
@@ -136,7 +143,8 @@ async def list(authorized_user: dict = Depends(auth.authorizedUser(["admin"])) )
     } 
 
 @router.post("/create")
-async def create(user: UserModel, authorized_user: dict = Depends(auth.authorizedUser(["admin"])) ):
+@limiter.limit("1/second")
+async def create(request: Request, user: UserModel, authorized_user: dict = Depends(auth.authorizedUser(["admin"])) ):
     # Check if current user is admin
     if authorized_user['is_authorized'] == False:
         raise HTTPException(
@@ -163,7 +171,8 @@ async def create(user: UserModel, authorized_user: dict = Depends(auth.authorize
         )
 
 @router.post("/update")
-async def update(user: UerDetailModel, authorized_user: dict = Depends(auth.authorizedUser(["admin"])) ):
+@limiter.limit("1/second")
+async def update(request: Request, user: UerDetailModel, authorized_user: dict = Depends(auth.authorizedUser(["admin"])) ):
     # Check if current user is admin
     if authorized_user['is_authorized'] == False:
         raise HTTPException(
@@ -192,7 +201,8 @@ async def update(user: UerDetailModel, authorized_user: dict = Depends(auth.auth
 
 
 @router.get("/getById/{user_id}")
-async def getById(user_id: int, authorized_user: dict = Depends(auth.authorizedUser(["admin"])) ):
+@limiter.limit("1/second")
+async def getById(request: Request, user_id: int, authorized_user: dict = Depends(auth.authorizedUser(["admin"])) ):
     # Check if current user is admin
     if authorized_user['is_authorized'] == False:
         raise HTTPException(
@@ -208,7 +218,8 @@ async def getById(user_id: int, authorized_user: dict = Depends(auth.authorizedU
     }
 
 @router.get("/getByUsername/{username}")
-async def getByUsername(username: str, authorized_user: dict = Depends(auth.authorizedUser(["admin"])) ):
+@limiter.limit("1/second")
+async def getByUsername(request: Request, username: str, authorized_user: dict = Depends(auth.authorizedUser(["admin"])) ):
     # Check if current user is admin
     if authorized_user['is_authorized'] == False:
         raise HTTPException(
@@ -224,7 +235,8 @@ async def getByUsername(username: str, authorized_user: dict = Depends(auth.auth
     }  
 
 @router.post("/assignRolesToUser")
-async def assignRolesToUser(username: str, role_names: List[str],authorized_user: dict = Depends(auth.authorizedUser(["admin"])) ):
+@limiter.limit("1/second")
+async def assignRolesToUser(request: Request, username: str, role_names: List[str],authorized_user: dict = Depends(auth.authorizedUser(["admin"])) ):
     # Check if current user is admin
     if authorized_user['is_authorized'] == False:
         raise HTTPException(
@@ -243,8 +255,9 @@ async def assignRolesToUser(username: str, role_names: List[str],authorized_user
             detail= "Roles are not assigned to the user, check logs"
         )
 
-@router.get("/userRoles")
-async def userRoles(username: str, authorized_user: dict = Depends(auth.authorizedUser(["admin"])) ):
+@router.get("/userRoles")   
+@limiter.limit("1/second")
+async def userRoles(request: Request, username: str, authorized_user: dict = Depends(auth.authorizedUser(["admin"])) ):
     # Check if current user is admin
     if authorized_user['is_authorized'] == False:
         raise HTTPException(
@@ -267,7 +280,8 @@ async def userRoles(username: str, authorized_user: dict = Depends(auth.authoriz
         )
 
 @router.get("/listMyRoles")
-async def listMyRoles(authorized_user: dict = Depends(auth.authorizedUser(["self"])) ):
+@limiter.limit("1/second")
+async def listMyRoles(request: Request, authorized_user: dict = Depends(auth.authorizedUser(["self"])) ):
     # Check if current user is admin
     if authorized_user['is_authorized'] == False:
         raise HTTPException(

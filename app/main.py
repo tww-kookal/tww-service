@@ -1,4 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 from .routers import login, rooms, users, roles, reports, customers, booking, admin, payments, accounting
 from prometheus_fastapi_instrumentator import Instrumentator
 from fastapi.middleware.cors import CORSMiddleware
@@ -43,7 +46,15 @@ logger = logging.getLogger("tww.service.main")
 
 logger.debug(f"Database Host: {settings.LOG_LEVEL}")
 
+#Incorporate Rate Limiter
+limiter = Limiter(key_func=get_remote_address)
+
 app = FastAPI()
+
+# Register exception handler
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 Instrumentator().instrument(
     app,
 ).expose(app, include_in_schema=False, tags=["metrics"])

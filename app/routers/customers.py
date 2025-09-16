@@ -1,5 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 import logging
 
 from ..biz import customersHelper as helper
@@ -12,6 +14,7 @@ router = APIRouter(
     prefix="/api/v1/customers",  # all routes start with /customers
     tags=["Customers"]    # OpenAPI grouping
 )
+limiter = Limiter(key_func=get_remote_address) #Incorporate Rate Limiter
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 from pydantic import BaseModel
@@ -28,7 +31,8 @@ class CustomerModel (BaseModel):
     zip_code: str
 
 @router.get("/", description="Gets all customers")
-async def getAllCustomers(authorized_user: dict = Depends(auth.authorizedUser(["admin"]))):
+@limiter.limit("1/second")
+async def getAllCustomers(request: Request, authorized_user: dict = Depends(auth.authorizedUser(["admin"]))):
     try:
         customers = helper.getAllCustomers()
         return {
@@ -43,7 +47,8 @@ async def getAllCustomers(authorized_user: dict = Depends(auth.authorizedUser(["
         )
 
 @router.get("/byID/{customer_id}", description="Gets a customer by id")
-async def getACustomerById(customer_id: int, authorized_user: dict = Depends(auth.authorizedUser(["admin"]))):
+@limiter.limit("1/second")
+async def getACustomerById(request: Request, customer_id: int, authorized_user: dict = Depends(auth.authorizedUser(["admin"]))):
     try:
         customer = helper.getCustomerByID(customer_id)
         return {
@@ -57,8 +62,9 @@ async def getACustomerById(customer_id: int, authorized_user: dict = Depends(aut
             detail="Unable to retrieve customer, check logs"
         )
 
-@router.post("/create")
-async def createCustomer(customer: CustomerModel, authorized_user: dict = Depends(auth.authorizedUser(["admin", 'manager']))):
+@router.post("/create", description="Creates a customer")
+@limiter.limit("1/second")
+async def createCustomer(request: Request, customer: CustomerModel, authorized_user: dict = Depends(auth.authorizedUser(["admin", 'manager']))):
     try:
         createdCustomer = helper.createCustomer(customer.model_dump())
         return {
@@ -72,8 +78,9 @@ async def createCustomer(customer: CustomerModel, authorized_user: dict = Depend
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
                             detail="Not able to create the customer")
 
-@router.post("/update")
-async def updateCustomer(customer: CustomerModel, authorized_user: dict = Depends(auth.authorizedUser(["admin", 'manager']))):
+@router.post("/update", description="Updates a customer")
+@limiter.limit("1/second")
+async def updateCustomer(request: Request, customer: CustomerModel, authorized_user: dict = Depends(auth.authorizedUser(["admin", 'manager']))):
     try:
         updatedCustomer = helper.updateCustomer(customer.model_dump())
         return {

@@ -1,5 +1,7 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from fastapi.security import OAuth2PasswordBearer
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from ..data import database
 import logging
 
@@ -7,12 +9,14 @@ router = APIRouter(
     prefix="/api/v1/reports",  # all routes start with /api/v1/reports
     tags=["Reports"]    # OpenAPI grouping
 )
+limiter = Limiter(key_func=get_remote_address) #Incorporate Rate Limiter
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 ####### Logger ############
 logger = logging.getLogger("tww.service.reports")
 
-@router.get("/reportBookings")
-def report_bookings():
+@router.get("/reportBookings", description="Gets a report of bookings")
+@limiter.limit("1/second")
+def report_bookings(request: Request):
     conn = database.get_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""

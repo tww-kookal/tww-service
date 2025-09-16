@@ -1,5 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.security import OAuth2PasswordRequestForm
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 import logging
 from datetime import timedelta
 from .. import utils 
@@ -11,12 +13,14 @@ router = APIRouter(
     prefix="/api/v1",  # all routes start with /api/v1
     tags=["Login"]    # OpenAPI grouping
 )
+limiter = Limiter(key_func=get_remote_address) #Incorporate Rate Limiter
 
 ####### Logger ############
 logger = logging.getLogger("tww.service.login")
 
-@router.post("/login")
-def login(form_data: OAuth2PasswordRequestForm = Depends()):
+@router.post("/login", description="Logs in a user")
+@limiter.limit("1/second")
+def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends()):
     user = userHelper.queryUser(form_data.username)
 
     if not userHelper.validateUser(user, form_data.password):

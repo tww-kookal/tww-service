@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query, Path
+from fastapi import APIRouter, Depends, HTTPException, status, Request
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from datetime import timedelta
 from ..config import config
 from pydantic import BaseModel
@@ -17,11 +19,13 @@ router = APIRouter()
 #     prefix="/",  # all routes start with /api/v1/rooms
 #     tags=["Admin"]    # OpenAPI grouping
 # )
+limiter = Limiter(key_func=get_remote_address) #Incorporate Rate Limiter
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 @router.post("/login")
-def login(form_data: OAuth2PasswordRequestForm = Depends()):
+@limiter.limit("1/second")
+def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends()):
     user = userHelper.queryUser(form_data.username)
 
     if not userHelper.validateUser(user, form_data.password):
@@ -38,7 +42,8 @@ class ScriptModel (BaseModel):
     query: str
 
 @router.post("/execute")
-async def execute(query: ScriptModel, authorized_user: dict = Depends(auth.authorizedUser(['admin']))):
+@limiter.limit("1/second")
+async def execute(request: Request, query: ScriptModel, authorized_user: dict = Depends(auth.authorizedUser(['admin']))):
     try:
         createdRoom = helper.execute(query.model_dump())
         return {
