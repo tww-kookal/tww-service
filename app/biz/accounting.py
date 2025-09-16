@@ -18,10 +18,12 @@ def getAllAccountingCategories():
 
 def createExpense(expense: dict):
     try:
-        logger.debug(f"createExpense:")
+        logger.debug(f"createExpense: {expense}")
         userData = userHelper.queryUser(expense['created_by'])
-        expense['created_by'] = userData['user_id']
-        expense['txn_by'] = expense['paid_by']
+        if not expense['created_by']:
+            expense['created_by'] = userData['user_id']
+        if not expense['txn_by']:
+            expense['txn_by'] = expense['paid_by']
         return data.createExpense(expense)
     except Exception as e:
         logger.error (f"Exception in helper.createExpense: {e}")
@@ -30,10 +32,12 @@ def createExpense(expense: dict):
 
 def updateExpense(expense: dict):
     try:
-        logger.debug(f"updateExpense:")
+        logger.debug(f"updateExpense: {expense}")
         userData = userHelper.queryUser(expense['created_by'])
-        expense['created_by'] = userData['user_id']
-        expense['txn_by'] = expense['paid_by']
+        if not expense['created_by']:
+            expense['created_by'] = userData['user_id']
+        if not expense['txn_by']:
+            expense['txn_by'] = expense['paid_by']
         return data.updateExpense(expense)
     except Exception as e:
         logger.error (f"Exception in helper.updateExpense: {e}")
