@@ -82,7 +82,7 @@ async def googleSignup(request: Request, tokenrequest: TokenRequest):
 @limiter.limit("1/second")
 async def googleLogin(request: Request, tokenrequest: TokenRequest):
     try:
-        logger.debug(f"GoogleLogin::Token Request: {tokenrequest}")
+        logger.debug(f"GoogleLogin::Token Request: ")
 
         userInfo = auth.getUserDetailsFromAccessToken(tokenrequest.token)
 

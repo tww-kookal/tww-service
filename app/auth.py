@@ -21,7 +21,7 @@ def getUserDetailsFromAccessToken(accessToken: str):
         )
         if userInfoResp.status_code == 200:
             user_info = userInfoResp.json()
-            logger.debug(f"GetUserDetailsFromAccessToken::User Info: {user_info}")
+            logger.debug(f"GetUserDetailsFromAccessToken::User's name : {user_info['given_name'] or None}   ")
             return {
                 'username' : user_info["sub"],
                 'email' : user_info["email"],
@@ -53,7 +53,7 @@ def getUserDetailsFromIdToken(idToken: str):
         'phone' : idinfo.get('phone_number') or 'NO-PHONE',
         'picture': idinfo.get('picture') or 'NO-PICTURE',
     }
-    logger.debug(f"GetUserDetailsFromIdToken::User Info: {userDetails['email']}")
+    logger.debug(f"GetUserDetailsFromIdToken::User's name : {userDetails['first_name'] or None}")
     return userDetails
 
 def authorizedUser(authorizedRoles: list):
@@ -64,11 +64,11 @@ def authorizedUser(authorizedRoles: list):
             userDetails = getUserDetailsFromAccessToken(token)
             # Check if the user is already registered
             userRoles = userDB.queryRolesForUserDB(userDetails["username"])
-            logger.debug(f"Roles for the User: {userRoles}, Roles Expected : {authorizedRoles}")
             if userRoles is None:
                 userRoles = []
             userRoles.append('self')
             
+            logger.debug(f"Is this user authorized ? {role in authorizedRoles}")
             # check for either of the authorized roles is in the user roles
             for role in userRoles:
                 if role in authorizedRoles:
