@@ -166,9 +166,12 @@ async def listAllBookings(
 @router.get("/guestsForDay/{forDate}")
 @limiter.limit("1/second")
 def noOfGuest(request: Request, forDate: date, authorized_user: dict = Depends(auth.authorizedUser(["admin", 'manager', 'owner']))):
-    result = helper.guestsForDay(forDate)
-    print(result)
-    return result
+    try:
+        return helper.guestsForDay(forDate)
+    except Exception as e:
+        logger.error(f"Exception in guestsForDay: {e}")
+        traceback.print_exc()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Not able to get the number of guests for the day")
 
 @router.get("/byID/{booking_id}", description = "list all the bookings since the date, if the date is not provided the default date is since Jan 1, 2020")
 @limiter.limit("1/second")
