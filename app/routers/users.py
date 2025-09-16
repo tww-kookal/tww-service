@@ -55,7 +55,7 @@ class TokenRequest(BaseModel):
     token: str    
 
 @router.post("/googleAuth/signup")
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 async def googleSignup(request: Request, tokenrequest: TokenRequest):
     try:
         userInfo = auth.getUserDetailsFromAccessToken(tokenrequest.token)
@@ -79,7 +79,7 @@ async def googleSignup(request: Request, tokenrequest: TokenRequest):
         )
 
 @router.post("/googleAuth/login")
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 async def googleLogin(request: Request, tokenrequest: TokenRequest):
     try:
         logger.debug(f"GoogleLogin::Token Request: ")
@@ -114,7 +114,7 @@ async def googleLogin(request: Request, tokenrequest: TokenRequest):
         )
 
 @router.post("/auth/google")
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 async def auth_google(request: Request, data: TokenRequest):
     try:
         # Verify token with Google
@@ -132,7 +132,7 @@ async def auth_google(request: Request, data: TokenRequest):
         raise HTTPException(status_code=400, detail="Invalid Google token")
     
 @router.get("/")
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 async def list(request: Request, authorized_user: dict = Depends(auth.authorizedUser(["admin"])) ):
     users = queryAllUsersDB()
     return {
@@ -143,7 +143,7 @@ async def list(request: Request, authorized_user: dict = Depends(auth.authorized
     } 
 
 @router.post("/create")
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 async def create(request: Request, user: UserModel, authorized_user: dict = Depends(auth.authorizedUser(["admin"])) ):
     # Check if current user is admin
     if authorized_user['is_authorized'] == False:
@@ -171,7 +171,7 @@ async def create(request: Request, user: UserModel, authorized_user: dict = Depe
         )
 
 @router.post("/update")
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 async def update(request: Request, user: UerDetailModel, authorized_user: dict = Depends(auth.authorizedUser(["admin"])) ):
     # Check if current user is admin
     if authorized_user['is_authorized'] == False:
@@ -201,7 +201,7 @@ async def update(request: Request, user: UerDetailModel, authorized_user: dict =
 
 
 @router.get("/getById/{user_id}")
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 async def getById(request: Request, user_id: int, authorized_user: dict = Depends(auth.authorizedUser(["admin"])) ):
     # Check if current user is admin
     if authorized_user['is_authorized'] == False:
@@ -218,7 +218,7 @@ async def getById(request: Request, user_id: int, authorized_user: dict = Depend
     }
 
 @router.get("/getByUsername/{username}")
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 async def getByUsername(request: Request, username: str, authorized_user: dict = Depends(auth.authorizedUser(["admin"])) ):
     # Check if current user is admin
     if authorized_user['is_authorized'] == False:
@@ -235,7 +235,7 @@ async def getByUsername(request: Request, username: str, authorized_user: dict =
     }  
 
 @router.post("/assignRolesToUser")
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 async def assignRolesToUser(request: Request, username: str, role_names: List[str],authorized_user: dict = Depends(auth.authorizedUser(["admin"])) ):
     # Check if current user is admin
     if authorized_user['is_authorized'] == False:
@@ -256,7 +256,7 @@ async def assignRolesToUser(request: Request, username: str, role_names: List[st
         )
 
 @router.get("/userRoles")   
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 async def userRoles(request: Request, username: str, authorized_user: dict = Depends(auth.authorizedUser(["admin"])) ):
     # Check if current user is admin
     if authorized_user['is_authorized'] == False:
@@ -280,7 +280,7 @@ async def userRoles(request: Request, username: str, authorized_user: dict = Dep
         )
 
 @router.get("/listMyRoles")
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 async def listMyRoles(request: Request, authorized_user: dict = Depends(auth.authorizedUser(["self"])) ):
     # Check if current user is admin
     if authorized_user['is_authorized'] == False:

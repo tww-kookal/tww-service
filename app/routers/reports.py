@@ -15,7 +15,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 logger = logging.getLogger("tww.service.reports")
 
 @router.get("/reportBookings", description="Gets a report of bookings")
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 def report_bookings(request: Request):
     conn = database.get_connection()
     cursor = conn.cursor(dictionary=True)

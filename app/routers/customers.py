@@ -31,7 +31,7 @@ class CustomerModel (BaseModel):
     zip_code: str
 
 @router.get("/", description="Gets all customers")
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 async def getAllCustomers(request: Request, authorized_user: dict = Depends(auth.authorizedUser(["admin"]))):
     try:
         customers = helper.getAllCustomers()
@@ -47,7 +47,7 @@ async def getAllCustomers(request: Request, authorized_user: dict = Depends(auth
         )
 
 @router.get("/byID/{customer_id}", description="Gets a customer by id")
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 async def getACustomerById(request: Request, customer_id: int, authorized_user: dict = Depends(auth.authorizedUser(["admin"]))):
     try:
         customer = helper.getCustomerByID(customer_id)
@@ -63,7 +63,7 @@ async def getACustomerById(request: Request, customer_id: int, authorized_user: 
         )
 
 @router.post("/create", description="Creates a customer")
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 async def createCustomer(request: Request, customer: CustomerModel, authorized_user: dict = Depends(auth.authorizedUser(["admin", 'manager']))):
     try:
         createdCustomer = helper.createCustomer(customer.model_dump())
@@ -79,7 +79,7 @@ async def createCustomer(request: Request, customer: CustomerModel, authorized_u
                             detail="Not able to create the customer")
 
 @router.post("/update", description="Updates a customer")
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 async def updateCustomer(request: Request, customer: CustomerModel, authorized_user: dict = Depends(auth.authorizedUser(["admin", 'manager']))):
     try:
         updatedCustomer = helper.updateCustomer(customer.model_dump())

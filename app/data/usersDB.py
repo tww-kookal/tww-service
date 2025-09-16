@@ -9,7 +9,11 @@ def queryUserDB(username: str):
     try:
         conn = database.get_connection()
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT user_id, username, first_name, last_name, email, phone, booking_commission, password FROM users WHERE username=%s", (username,))
+        query  = """
+                SELECT user_id, username, first_name, last_name, email, phone, booking_commission, 
+                password FROM users WHERE username=%s
+        """
+        cursor.execute(query, (username,))
         user = cursor.fetchone()
         return user
     finally:

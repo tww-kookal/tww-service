@@ -20,7 +20,7 @@ class RoleCreate(BaseModel):
     role_name: str
 
 @router.post("/create", description="Creates a new role")
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 async def create_role(request: Request, role: RoleCreate, authorized_user: dict = Depends(auth.authorizedUser(["admin"]))):
     role_name = role.role_name
 
@@ -38,7 +38,7 @@ async def create_role(request: Request, role: RoleCreate, authorized_user: dict 
         )
     
 @router.get("/", description="Lists all roles")
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 async def listRoles(request: Request, authorized_user: dict = Depends(auth.authorizedUser(["admin"]))):
     roles = rolesDB.queryRolesDB()
     return {

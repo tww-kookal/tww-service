@@ -34,7 +34,7 @@ class PaymentModel(PaymentAddModel):
     booking_payments_id: int
 
 @router.post("/deleteById/{booking_payment_id}", description="Deletes a payment by ID")
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 def delete_payment(request: Request, booking_payment_id: int, authorized_user: dict = Depends(auth.authorizedUser(["manager", 'agent', 'owner'])) ):
     try:
         helper.deletePayment(booking_payment_id)
@@ -49,7 +49,7 @@ def delete_payment(request: Request, booking_payment_id: int, authorized_user: d
 
 
 @router.post("/update", description="Updates a payment")
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 def update_payment(request: Request, payment: PaymentModel, authorized_user: dict = Depends(auth.authorizedUser(["manager", 'agent', 'owner'])) ):
     try:
         paymentDict = payment.model_dump()
@@ -65,7 +65,7 @@ def update_payment(request: Request, payment: PaymentModel, authorized_user: dic
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Not able to update the payment")
 
 @router.post("/add", description="Adds a new payment")
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 def add_payment(request: Request, payment: PaymentAddModel, authorized_user: dict = Depends(auth.authorizedUser(["manager", 'agent', 'owner'])) ):
     try:
         paymentDict = payment.model_dump()
@@ -87,7 +87,7 @@ def add_payment(request: Request, payment: PaymentAddModel, authorized_user: dic
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Not able to book the room")
 
 @router.get("/forBookingID/{booking_id}", description="Gets payments for a booking ID")
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 def getPaymentsForBooking(request: Request,
     booking_id: int = Path(description="Booking ID", example = 1), 
     authorized_user: dict = Depends(auth.authorizedUser(["admin", 'manager', 'owner']))):

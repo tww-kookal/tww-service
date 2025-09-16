@@ -140,6 +140,7 @@ def updateExpense(expense: dict):
             created_by = %s, txn_by = %s, paid_by = %s, received_by = %s, received_for_booking_id = %s, payment_type = %s
             WHERE acc_entry_id = %s
         """
+        logger.debug(f"Expense to update: {expense}")
         cursor.execute(query, (
             expense["acc_category_id"],
             float(expense["acc_entry_amount"]),

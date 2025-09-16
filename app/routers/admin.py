@@ -24,7 +24,7 @@ limiter = Limiter(key_func=get_remote_address) #Incorporate Rate Limiter
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 @router.post("/login")
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends()):
     user = userHelper.queryUser(form_data.username)
 
@@ -42,7 +42,7 @@ class ScriptModel (BaseModel):
     query: str
 
 @router.post("/execute")
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 async def execute(request: Request, query: ScriptModel, authorized_user: dict = Depends(auth.authorizedUser(['admin']))):
     try:
         createdRoom = helper.execute(query.model_dump())

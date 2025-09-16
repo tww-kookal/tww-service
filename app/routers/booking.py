@@ -46,7 +46,7 @@ class BookingModel(BaseModel):
     remarks: str
 
 @router.get("/checkRoomAvailability", description = "Check room availability based on check-in date, check-out date and number of people")
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 async def check_room_availability(
     request: Request,
     check_in_date: date = Query(..., description="Check-in date in YYYY-MM-DD format", example = "2025-09-27"), 
@@ -62,7 +62,7 @@ async def check_room_availability(
     }
 
 @router.post("/updateBooking")
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 def update_booking(request: Request, booking: BookingModel,authorized_user: dict = Depends(auth.authorizedUser(["manager", 'agent', 'owner'])) ):
     try:
         bookingDict = booking.model_dump()
@@ -88,7 +88,7 @@ def update_booking(request: Request, booking: BookingModel,authorized_user: dict
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Not able to book the room")
 
 @router.post("/createBooking")
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 def book_room(request: Request, booking: BookingModel,authorized_user: dict = Depends(auth.authorizedUser(["manager", 'agent', 'owner'])) ):
     try:
         bookingDict = booking.model_dump()
@@ -131,7 +131,7 @@ async def listBookingsByCheckInDate(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Not able to get all the bookings")
 
 @router.get("/listAllBookings", description = "list all the bookings since the date, if the date is not provided the default date is since Jan 1, 2020")
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 async def listAllBookings(
     request: Request,
     authorized_user: dict = Depends(auth.authorizedUser(["admin", 'manager', 'owner']))):
@@ -147,7 +147,7 @@ async def listAllBookings(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Not able to get all the bookings")
 
 @router.get("/listAllBookings/{startingDate}", description = "list all the bookings since the date, if the date is not provided the default date is since Jan 1, 2020")
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 async def listAllBookings(
     request: Request,
     startingDate: date = Path(description="Starting date in YYYY-MM-DD format", example = "2025-09-27"), 
@@ -164,7 +164,7 @@ async def listAllBookings(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Not able to get all the bookings")
     
 @router.get("/guestsForDay/{forDate}")
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 def noOfGuest(request: Request, forDate: date, authorized_user: dict = Depends(auth.authorizedUser(["admin", 'manager', 'owner']))):
     try:
         return helper.guestsForDay(forDate)
@@ -174,7 +174,7 @@ def noOfGuest(request: Request, forDate: date, authorized_user: dict = Depends(a
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Not able to get the number of guests for the day")
 
 @router.get("/byID/{booking_id}", description = "list all the bookings since the date, if the date is not provided the default date is since Jan 1, 2020")
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 async def getBookingByID(
     request: Request,
     booking_id: int = Path(description="Booking ID", example = 1), 

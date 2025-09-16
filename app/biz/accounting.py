@@ -1,6 +1,6 @@
 from ..data import accountingDB as data
 from datetime import date
-
+from . import usersHelper as userHelper
 import logging
 import traceback
 
@@ -17,12 +17,28 @@ def getAllAccountingCategories():
         raise e
 
 def createExpense(expense: dict):
-    logger.debug(f"createExpense:")
-    return data.createExpense(expense)
+    try:
+        logger.debug(f"createExpense:")
+        userData = userHelper.queryUser(expense['created_by'])
+        expense['created_by'] = userData['user_id']
+        expense['txn_by'] = expense['paid_by']
+        return data.createExpense(expense)
+    except Exception as e:
+        logger.error (f"Exception in helper.createExpense: {e}")
+        traceback.print_exc()
+        raise e
 
 def updateExpense(expense: dict):
-    logger.debug(f"updateExpense:")
-    return data.updateExpense(expense)
+    try:
+        logger.debug(f"updateExpense:")
+        userData = userHelper.queryUser(expense['created_by'])
+        expense['created_by'] = userData['user_id']
+        expense['txn_by'] = expense['paid_by']
+        return data.updateExpense(expense)
+    except Exception as e:
+        logger.error (f"Exception in helper.updateExpense: {e}")
+        traceback.print_exc()
+        raise e
 
 def getExpensesSince(expenseDate: date = date(2020, 1, 1)):
     try:

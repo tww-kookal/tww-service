@@ -19,7 +19,7 @@ limiter = Limiter(key_func=get_remote_address) #Incorporate Rate Limiter
 logger = logging.getLogger("tww.service.login")
 
 @router.post("/login", description="Logs in a user")
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends()):
     user = userHelper.queryUser(form_data.username)
 

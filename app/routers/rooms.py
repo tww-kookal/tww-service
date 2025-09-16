@@ -40,7 +40,7 @@ async def listRooms(request: Request, authorized_user: dict = Depends(auth.autho
     }
 
 @router.get("/byName/{room_name}", response_model= None, description="Gets a room by name")
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 async def getRoomByName(request: Request, room_name: str, authorized_user: dict = Depends(auth.authorizedUser(["self"]))):
     room = helper.getRoomByName(room_name)
     if room is None:
@@ -51,7 +51,7 @@ async def getRoomByName(request: Request, room_name: str, authorized_user: dict 
     }
 
 @router.post("/create", description="Creates a new room")
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 async def createRoom(request: Request, room: RoomModel, authorized_user: dict = Depends(auth.authorizedUser(["admin"]))):
     try:
         createdRoom = helper.createRoom(room.model_dump())

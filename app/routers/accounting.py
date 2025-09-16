@@ -17,7 +17,7 @@ logger = logging.getLogger("tww.service.accounting")
 
 # Category Endpoints
 @router.get("/categories")
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 def list_categories(request: Request, authorized_user: dict = Depends(auth.authorizedUser(["manager", "employee", "owner"]))):
     try:
         return {
@@ -31,9 +31,10 @@ def list_categories(request: Request, authorized_user: dict = Depends(auth.autho
         raise HTTPException(status_code=500, detail=str(e))
     
 @router.post("/expense/add")
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 def add_expense(request: Request, expense: dict, authorized_user: dict = Depends(auth.authorizedUser(["manager", "employee", "owner"]))):
     try:
+        expense['created_by'] = authorized_user['user_name']
         return {
             "status": status.HTTP_201_CREATED,
             "message": "Expense added",
@@ -45,9 +46,10 @@ def add_expense(request: Request, expense: dict, authorized_user: dict = Depends
         raise HTTPException(status_code=500, detail=str(e))
     
 @router.post("/expense/update")
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 def update_expense(request: Request, expense: dict, authorized_user: dict = Depends(auth.authorizedUser(["manager", "employee", "owner"]))):
     try:
+        expense['created_by'] = authorized_user['user_name']
         return {
             "status": status.HTTP_201_CREATED,
             "message": "Expense updated",
@@ -59,7 +61,7 @@ def update_expense(request: Request, expense: dict, authorized_user: dict = Depe
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/expense/deleteById/{expenseId}")
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 def delete_expense(request: Request, expenseId: int, authorized_user: dict = Depends(auth.authorizedUser(["manager", "employee", "owner"]))):
     try:
         return {
@@ -73,7 +75,7 @@ def delete_expense(request: Request, expenseId: int, authorized_user: dict = Dep
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/expenses")
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 def list_entries(request: Request, authorized_user: dict = Depends(auth.authorizedUser(["manager", "owner"]))):
     try:
         return {
@@ -85,7 +87,7 @@ def list_entries(request: Request, authorized_user: dict = Depends(auth.authoriz
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/expenses/{expenseDate}")
-@limiter.limit("1/second")
+@limiter.limit("10/second")
 def list_entries(request: Request, expenseDate: date, authorized_user: dict = Depends(auth.authorizedUser(["manager", "owner"]))):
     try:
         return {
@@ -97,7 +99,7 @@ def list_entries(request: Request, expenseDate: date, authorized_user: dict = De
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/payment/forBookingID/{bookingId}")
-@limiter.limit("1/second")
+@limiter.limit("30/second")
 def list_entries(request: Request, bookingId: int, authorized_user: dict = Depends(auth.authorizedUser(["manager", "owner"]))):
     try:
         return {
