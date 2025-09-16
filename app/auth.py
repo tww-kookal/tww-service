@@ -68,7 +68,7 @@ def authorizedUser(authorizedRoles: list):
                 userRoles = []
             userRoles.append('self')
             
-            logger.debug(f"Is this user authorized ? {role in authorizedRoles}")
+            logger.debug(f"Is this user authorized ")
             # check for either of the authorized roles is in the user roles
             for role in userRoles:
                 if role in authorizedRoles:
