@@ -26,7 +26,7 @@ dbconfig = {
 # Connection pool
 connection_pool = pooling.MySQLConnectionPool(
     pool_name="mypool",
-    pool_size=35,
+    pool_size=32,
     **dbconfig
 )
 
