@@ -32,7 +32,7 @@ class ColorFormatter(logging.Formatter):
 
 # Configure root logger
 handler = logging.StreamHandler()
-handler.setFormatter(ColorFormatter())
+#handler.setFormatter(ColorFormatter())
 logging.basicConfig(
     level=settings.LOG_LEVEL,  # Set the logging level: DEBUG, INFO, WARNING, ERROR, CRITICAL
     format="%(levelname)s: [%(asctime)s.%(msecs)03d] %(name)s: %(message)s",  # Format with time, level, logger name
