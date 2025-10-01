@@ -30,70 +30,70 @@ def list_categories(request: Request, authorized_user: dict = Depends(auth.autho
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
     
-@router.post("/expense/add")
+@router.post("/transaction/add")
 @limiter.limit("10/second")
-def add_expense(request: Request, expense: dict, authorized_user: dict = Depends(auth.authorizedUser(["manager", "employee", "owner"]))):
+def add_transaction(request: Request, transaction: dict, authorized_user: dict = Depends(auth.authorizedUser(["manager", "employee", "owner"]))):
     try:
-        expense['created_by'] = authorized_user['user_name']
+        transaction['created_by'] = authorized_user['user_name']
         return {
             "status": status.HTTP_201_CREATED,
-            "message": "Expense added",
-            "createdExpense": helper.createExpense(expense)            
+            "message": "Transaction added",
+            "createdTransaction": helper.createTransaction(transaction)            
         }
     except Exception as e:
-        logger.error(f"Exception in add_expense: {e}")
+        logger.error(f"Exception in add_transaction: {e}")
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
     
-@router.post("/expense/update")
+@router.post("/transaction/update")
 @limiter.limit("10/second")
-def update_expense(request: Request, expense: dict, authorized_user: dict = Depends(auth.authorizedUser(["manager", "employee", "owner"]))):
+def update_transaction(request: Request, transaction: dict, authorized_user: dict = Depends(auth.authorizedUser(["manager", "employee", "owner"]))):
     try:
-        expense['created_by'] = authorized_user['user_name']
+        transaction['created_by'] = authorized_user['user_name']
         return {
             "status": status.HTTP_201_CREATED,
-            "message": "Expense updated",
-            "updatedExpense": helper.updateExpense(expense)            
+            "message": "Transaction updated",
+            "updatedTransaction": helper.updateTransaction(transaction)            
         }
     except Exception as e:
-        logger.error(f"Exception in update_expense: {e}")
+        logger.error(f"Exception in update_transaction: {e}")
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/expense/deleteById/{expenseId}")
+@router.post("/transaction/deleteById/{transactionId}")
 @limiter.limit("10/second")
-def delete_expense(request: Request, expenseId: int, authorized_user: dict = Depends(auth.authorizedUser(["manager", "employee", "owner"]))):
+def delete_transaction(request: Request, transactionId: int, authorized_user: dict = Depends(auth.authorizedUser(["manager", "employee", "owner"]))):
     try:
         return {
             "status": status.HTTP_201_CREATED,
-            "message": "Expense deleted",
-            "deletedExpense": helper.deleteExpense(expenseId)            
+            "message": "Transaction deleted",
+            "deletedTransaction": helper.deleteTransaction(transactionId)            
         }
     except Exception as e:
-        logger.error(f"Exception in update_expense: {e}")
+        logger.error(f"Exception in delete_transaction: {e}")
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/expenses")
+@router.get("/transactions")
 @limiter.limit("10/second")
 def list_entries(request: Request, authorized_user: dict = Depends(auth.authorizedUser(["manager", "owner"]))):
     try:
         return {
             "status": status.HTTP_200_OK,
             "message": "Success",
-            "expenses": helper.getExpensesSince()
+            "transactions": helper.getTransactionsSince()
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/expenses/{expenseDate}")
+@router.get("/transactions/{transactionDate}")
 @limiter.limit("10/second")
-def list_entries(request: Request, expenseDate: date, authorized_user: dict = Depends(auth.authorizedUser(["manager", "owner"]))):
+def list_entries(request: Request, transactionDate: date, authorized_user: dict = Depends(auth.authorizedUser(["manager", "owner"]))):
     try:
         return {
             "status": status.HTTP_200_OK,
             "message": "Success",
-            "expenses": helper.getExpensesSince(expenseDate)
+            "transactions": helper.getTransactionsSince(transactionDate)
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

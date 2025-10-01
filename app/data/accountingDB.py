@@ -22,7 +22,7 @@ def listAllAccountingCategories():
         if conn:
             conn.close()
 
-def createExpense(expense: dict):
+def insertTransaction(transaction: dict):
     try:
         conn = database.get_connection()
         cursor = conn.cursor()
@@ -33,33 +33,33 @@ def createExpense(expense: dict):
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
 
-        # if receveid_for_booking_id in expense is <=0 then reset it to none
-        if "received_for_booking_id" in expense and (expense["received_for_booking_id"] <= 0 or expense["received_for_booking_id"] == ''):
-            expense["received_for_booking_id"] = None
+        # if receveid_for_booking_id in transaction is <=0 then reset it to none
+        if "received_for_booking_id" in transaction and (transaction["received_for_booking_id"] <= 0 or transaction["received_for_booking_id"] == ''):
+            transaction["received_for_booking_id"] = None
 
-        logger.debug(f"Expense to create: {expense}")
+        logger.debug(f"Transaction to create: {transaction}")
         cursor.execute(query, (
-            expense["acc_category_id"],
-            float(expense["acc_entry_amount"]),
-            expense["acc_entry_date"],
-            expense["acc_entry_description"],
-            expense["created_by"],
-            expense["txn_by"],
-            expense["paid_by"],
-            expense["received_by"],
-            expense["received_for_booking_id"],
-            expense["payment_type"]
+            transaction["acc_category_id"],
+            float(transaction["acc_entry_amount"]),
+            transaction["acc_entry_date"],
+            transaction["acc_entry_description"],
+            transaction["created_by"],
+            transaction["txn_by"],
+            transaction["paid_by"],
+            transaction["received_by"],
+            transaction["received_for_booking_id"],
+            transaction["payment_type"]
         ))
         conn.commit()
-        expense["acc_entry_id"] = cursor.lastrowid
-        return expense
+        transaction["acc_entry_id"] = cursor.lastrowid
+        return transaction
     finally:
         if cursor:
             cursor.close()
         if conn:
             conn.close()
 
-def queryExpensesSince(expenseDate: date):
+def queryTransactionsSince(transactionDate: date):
     try:
         conn = database.get_connection()
         cursor = conn.cursor(dictionary=True)
@@ -84,7 +84,7 @@ def queryExpensesSince(expenseDate: date):
             WHERE acc_entry_date >= %s
             ORDER BY acc_entry_date, acc_category_name
         """
-        cursor.execute(query, (expenseDate,))
+        cursor.execute(query, (transactionDate,))
         return cursor.fetchall()
     finally:
         if cursor:
@@ -130,7 +130,7 @@ def queryPaymentsForBooking(bookingId: int):
         if conn:
             conn.close()
 
-def updateExpense(expense: dict):
+def updateTransaction(transaction: dict):
     conn = database.get_connection()
     try:
         cursor = conn.cursor()
@@ -140,25 +140,25 @@ def updateExpense(expense: dict):
             created_by = %s, txn_by = %s, paid_by = %s, received_by = %s, received_for_booking_id = %s, payment_type = %s
             WHERE acc_entry_id = %s
         """
-        logger.debug(f"Expense to update: {expense}")
+        logger.debug(f"Transaction to update: {transaction}")
         cursor.execute(query, (
-            expense["acc_category_id"],
-            float(expense["acc_entry_amount"]),
-            expense["acc_entry_date"],
-            expense["acc_entry_description"],
-            expense["created_by"],
-            expense["txn_by"],
-            expense["paid_by"],
-            expense["received_by"],
-            expense["received_for_booking_id"],
-            expense["payment_type"],
-            expense["acc_entry_id"]
+            transaction["acc_category_id"],
+            float(transaction["acc_entry_amount"]),
+            transaction["acc_entry_date"],
+            transaction["acc_entry_description"],
+            transaction["created_by"],
+            transaction["txn_by"],
+            transaction["paid_by"],
+            transaction["received_by"],
+            transaction["received_for_booking_id"],
+            transaction["payment_type"],
+            transaction["acc_entry_id"]
         ))
         conn.commit()
-        return expense
+        return transaction
     except Exception as e:
         conn.rollback()
-        logger.error (f"Exception in updateExpense: {e}")
+        logger.error (f"Exception in updateTransaction: {e}")
         traceback.print_exc()
         raise e
     finally:
@@ -167,7 +167,7 @@ def updateExpense(expense: dict):
         if conn:
             conn.close()
 
-def deleteExpense(expenseId ):
+def deleteTransaction(transactionId ):
     conn = database.get_connection()
     try:
         cursor = conn.cursor()
@@ -176,13 +176,13 @@ def deleteExpense(expenseId ):
             WHERE acc_entry_id = %s
         """
         cursor.execute(query, (
-            expenseId,
+            transactionId,
         ))
         conn.commit()
-        logger.debug(f"Expense {expenseId} deleted")
+        logger.debug(f"Transaction {transactionId} deleted")
     except Exception as e:
         conn.rollback()
-        logger.error (f"Exception in deleteExpense: {e}")
+        logger.error (f"Exception in deleteTransaction: {e}")
         traceback.print_exc()
         raise e
     finally:

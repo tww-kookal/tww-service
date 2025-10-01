@@ -16,38 +16,38 @@ def getAllAccountingCategories():
         traceback.print_exc()
         raise e
 
-def createExpense(expense: dict):
+def createTransaction(transaction: dict):
     try:
-        logger.debug(f"createExpense:")
-        userData = userHelper.queryUser(expense['created_by'])
-        expense['created_by'] = userData['user_id']
-        if 'txn_by' not in expense:
-            expense['txn_by'] = expense['paid_by']
-        return data.createExpense(expense)
+        logger.debug(f"createTransaction: {transaction}")
+        userData = userHelper.queryUser(transaction['created_by'])
+        transaction['created_by'] = userData['user_id']
+        if 'txn_by' not in transaction:
+            transaction['txn_by'] = transaction['paid_by']
+        return data.insertTransaction(transaction)
     except Exception as e:
-        logger.error (f"Exception in helper.createExpense: {e}")
+        logger.error (f"Exception in helper.createTransaction: {e}")
         traceback.print_exc()
         raise e
 
-def updateExpense(expense: dict):
+def updateTransaction(transaction: dict):
     try:
-        logger.debug(f"updateExpense:")
-        userData = userHelper.queryUser(expense['created_by'])
-        expense['created_by'] = userData['user_id']
-        if 'txn_by' not in expense:
-            expense['txn_by'] = expense['paid_by']
-        return data.updateExpense(expense)
+        logger.debug(f"updateTransaction: {transaction}")
+        userData = userHelper.queryUser(transaction['created_by'])
+        transaction['created_by'] = userData['user_id']
+        if 'txn_by' not in transaction:
+            transaction['txn_by'] = transaction['paid_by']
+        return data.updateTransaction(transaction)
     except Exception as e:
-        logger.error (f"Exception in helper.updateExpense: {e}")
+        logger.error (f"Exception in helper.updateTransaction: {e}")
         traceback.print_exc()
         raise e
 
-def getExpensesSince(expenseDate: date = date(2020, 1, 1)):
+def getTransactionsSince(transactionDate: date = date(2020, 1, 1)):
     try:
-        logger.debug(f"inside getExpensesSince")
-        return data.queryExpensesSince(expenseDate)
+        logger.debug(f"inside getTransactionsSince")
+        return data.queryTransactionsSince(transactionDate)
     except Exception as e:
-        logger.error (f"Exception in helper.getExpensesSince: {e}")
+        logger.error (f"Exception in helper.getTransactionsSince: {e}")
         traceback.print_exc()
         raise e
 
@@ -60,11 +60,11 @@ def getPaymentsForBooking(bookingId: int):
         traceback.print_exc()
         raise e
 
-def deleteExpense(expenseId: int):
+def deleteTransaction(transactionId: int):
     try:
-        logger.debug(f"inside deleteExpense {expenseId}")
-        return data.deleteExpense(expenseId)
+        logger.debug(f"inside deleteTransaction {transactionId}")
+        return data.deleteTransaction(transactionId)
     except Exception as e:
-        logger.error (f"Exception in helper.deleteExpense: {e}")
+        logger.error (f"Exception in helper.deleteTransaction: {e}")
         traceback.print_exc()
         raise e
