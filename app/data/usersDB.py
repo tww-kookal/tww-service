@@ -40,8 +40,23 @@ def persistUserDB(user):
     try:    
         conn = database.get_connection()
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO users (username, password, first_name, last_name, email, phone, booking_commission) VALUES (%s, %s, %s, %s, %s, %s, %s)",
-                    (user["username"], user["hashed_password"], user["first_name"], user["last_name"], user["email"], user["phone"], user["booking_commission"]))
+        #if user does not contains user_type then its customer else th user_type received
+        user_type = user["user_type"] if "user_type" in user else "CUSTOMER"
+        query = """
+            INSERT INTO users 
+                (username, password, first_name, last_name, email, phone, booking_commission, user_type) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        cursor.execute(query,                       
+                    (user["username"], 
+                     user["hashed_password"], 
+                     user["first_name"], 
+                     user["last_name"], 
+                     user["email"], 
+                     user["phone"], 
+                     user["booking_commission"], 
+                     user_type)
+                )
         user["user_id"] = cursor.lastrowid
         conn.commit()
         return user
@@ -145,3 +160,20 @@ def assignRolesToUserDB(username: str, roleNames: list[str]):
         if conn:
             conn.close()
 
+def queryAllBookingSourcesDB():
+    try:
+        conn = database.get_connection()
+        cursor = conn.cursor(dictionary=True)
+        query = """
+                SELECT user_id, username, first_name, last_name, email, phone, booking_commission, user_type 
+                FROM users 
+                WHERE user_type IN ('BOOKING-AGENT', 'EMPLOYEE', 'PARTNER', 'CXO', 'COMPANY')
+                ORDER BY first_name DESC
+        """
+        cursor.execute(query)
+        return cursor.fetchall() # Returns a list of dictionaries of booking sources in tuple format
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()

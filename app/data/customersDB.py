@@ -10,14 +10,14 @@ def queryAllCustomersDB():
         conn = database.get_connection()
         cursor = conn.cursor(dictionary=True)
         query = """
-            SELECT customer_id, full_name as customer_name, email, phone, area, 
+            SELECT user_id as customer_id, concat(first_name, ' ', last_name) as customer_name, email, phone, area, 
             city, state, country, zip_code 
-            FROM customers 
-            ORDER BY customer_name
+            FROM users 
+            WHERE user_type = 'CUSTOMER'
+            ORDER BY customer_name;
         """
         cursor.execute(query)
-        customers = cursor.fetchall()
-        return customers
+        return cursor.fetchall()
     finally:
         if cursor:
             cursor.close()
@@ -29,10 +29,10 @@ def queryCustomerByIDDB(customer_id: int):
         conn = database.get_connection()
         cursor = conn.cursor(dictionary=True)
         query = """
-            SELECT customer_id, full_name as customer_name, email, phone, area, 
-            city, state, country, zip_code 
-            FROM customers 
-            WHERE customer_id = %s
+            SELECT user_id as customer_id, concat(first_name, ' ', last_name) as customer_name, 
+            email, phone, area, city, state, country, zip_code 
+            FROM users 
+            WHERE user_id = %s
         """
         cursor.execute(query, (customer_id,))
         customer = cursor.fetchone()
@@ -48,10 +48,10 @@ def queryCustomerByNameAndPhoneDB(customer_name: str, phone: str):
         conn = database.get_connection()
         cursor = conn.cursor(dictionary=True)
         query = """
-            SELECT customer_id, full_name as customer_name, email, phone, area, 
-            city, state, country, zip_code 
-            FROM customers 
-            WHERE full_name = %s AND phone = %s
+            SELECT user_id as customer_id, concat(first_name, ' ', last_name) as customer_name, 
+            email, phone, area, city, state, country, zip_code 
+            FROM users 
+            WHERE user_type = 'CUSTOMER' AND CONCAT(first_name, ' ', last_name) = %s AND phone = %s
         """
         cursor.execute(query, (customer_name, phone))
         customer = cursor.fetchall()
@@ -62,6 +62,18 @@ def queryCustomerByNameAndPhoneDB(customer_name: str, phone: str):
         if conn:
             conn.close()
 
+def extract_names(full_name: str):
+    customer_name_parts = full_name.split()
+        # Handle cases where customer_name is just a first name
+        # If customer_name is just a first name, set last_name to empty string
+        # If customer_name has more than one part, set first_name to first part and last_name to second part
+        # If customer_name has more than two parts, set first_name to first part and last_name to rest of parts joined by space
+        # If customer_name has more than two parts, set first_name to first part and last_name to rest of parts joined by space
+    first_name = customer_name_parts[0]
+    last_name = customer_name_parts[1] if len(customer_name_parts) > 1 else ''
+    if len(customer_name_parts) > 2:
+        last_name = ' '.join(customer_name_parts[2:])
+    return first_name,last_name
 
 def createCustomerDB(customer):
     conn = database.get_connection()
@@ -70,16 +82,24 @@ def createCustomerDB(customer):
         if len(duplicateCustomer) > 0:
             logger.info(f"Customer Already Exists")
             raise Exception("Customer Already Exists")
-
+        first_name, last_name = extract_names(customer["customer_name"])
+        #create a username of 50 characters or less with customer_name and phone
+        username = f"{first_name.lower()}_{last_name.lower()}_{customer['phone'][:5]}"
+        if len(username) > 50:
+            username = username[:50]
         query = """
-            INSERT INTO customers 
-            (full_name, email, phone, area, city, state, country, zip_code) 
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO users 
+            (username, password, user_type, first_name, last_name, email, phone, area, city, state, country, zip_code) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
 
         cursor = conn.cursor()
         response = cursor.execute(query, (
-            customer["customer_name"] if customer["customer_name"] is not None else None, 
+            username,
+            'no-password',
+            "CUSTOMER",
+            first_name if first_name is not None else None, 
+            last_name if last_name is not None else None,
             customer["email"] if customer["email"] is not None else None,
             customer["phone"] if customer["phone"] is not None else None,
             customer["area"] if customer["area"] is not None else None, 
@@ -105,16 +125,18 @@ def createCustomerDB(customer):
 def updateCustomerDB(customer):
     conn = database.get_connection()
     try:
+        first_name, last_name = extract_names(customer["customer_name"])
         query = """
-            UPDATE customers 
-            SET full_name = %s, email = %s, phone = %s, area = %s, city = %s, 
+            UPDATE users 
+            SET first_name = %s, last_name = %s, email = %s, phone = %s, area = %s, city = %s, 
             state = %s, country = %s, zip_code = %s
-            WHERE customer_id = %s
+            WHERE user_id = %s
         """
 
         cursor = conn.cursor()
         cursor.execute(query, (
-            customer["customer_name"] if customer["customer_name"] is not None else None, 
+            first_name if first_name is not None else None, 
+            last_name if last_name is not None else None,
             customer["email"] if customer["email"] is not None else None,
             customer["phone"] if customer["phone"] is not None else None,
             customer["area"] if customer["area"] is not None else None, 

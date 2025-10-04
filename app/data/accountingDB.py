@@ -67,18 +67,18 @@ def queryTransactionsSince(transactionDate: date):
             SELECT acc_entry_id, acc_entry_amount, acc_entry_description, acc_entry_date, 
             a.acc_category_id, ac_cat.acc_category_name, ac_cat.acc_category_type,
             created_by, u.first_name as created_by_first_name, u.last_name as created_by_last_name, 
-            txn_by, txn_cus.full_name as txn_by_customer_name, txn_cus.phone as txn_by_customer_phone,
-            paid_by, paid_cus.full_name as paid_by_customer_name, paid_cus.phone as paid_by_customer_phone,
-            received_by, recd_cus.full_name as received_by_customer_name, recd_cus.phone as received_by_customer_phone,
-            received_for_booking_id, c.full_name as booking_customer_name, 
+            txn_by, CONCAT(txn_cus.first_name, ' ', txn_cus.last_name) as txn_by_customer_name, txn_cus.phone as txn_by_customer_phone,
+            paid_by, CONCAT(paid_cus.first_name, ' ', paid_cus.last_name) as paid_by_customer_name, paid_cus.phone as paid_by_customer_phone,
+            received_by, CONCAT(recd_cus.first_name, ' ', recd_cus.last_name) as received_by_customer_name, recd_cus.phone as received_by_customer_phone,
+            received_for_booking_id, CONCAT(c.first_name, ' ', c.last_name) as booking_customer_name, 
             c.phone as booking_customer_phone, r.room_name, a.payment_type
             FROM accounting_entries a 
             LEFT OUTER JOIN bookings b ON (a.received_for_booking_id = b.booking_id)
-            LEFT OUTER JOIN customers c ON (b.customer_id = c.customer_id)
+            LEFT OUTER JOIN users c ON (b.customer_id = c.user_id)
             LEFT OUTER JOIN rooms r ON (b.room_id = r.room_id)
-            INNER JOIN customers recd_cus ON (a.received_by = recd_cus.customer_id)
-            INNER JOIN customers paid_cus ON (a.paid_by = paid_cus.customer_id)
-            INNER JOIN customers txn_cus ON (a.txn_by = txn_cus.customer_id)
+            INNER JOIN users recd_cus ON (a.received_by = recd_cus.user_id)
+            INNER JOIN users paid_cus ON (a.paid_by = paid_cus.user_id)
+            INNER JOIN users txn_cus ON (a.txn_by = txn_cus.user_id)
             INNER JOIN users u ON (a.created_by = u.user_id)
             INNER JOIN accounting_categories ac_cat ON (a.acc_category_id = ac_cat.acc_category_id)
             WHERE acc_entry_date >= %s
@@ -101,22 +101,27 @@ def queryPaymentsForBooking(bookingId: int):
             SELECT acc_entry_id, acc_entry_id as booking_payments_id,  
             acc_entry_amount, acc_entry_amount as payment_amount,
             acc_entry_date, acc_entry_date as payment_date,
-            received_by, received_by as payment_to, recd_cus.full_name as received_by_customer_name, recd_cus.phone as received_by_customer_phone,
+            received_by, received_by as payment_to, 
+            CONCAT(recd_cus.first_name, ' ', recd_cus.last_name) as received_by_customer_name, 
+            recd_cus.phone as received_by_customer_phone,
             a.acc_category_id, a.acc_category_id as payment_for, 
             ac_cat.acc_category_name, ac_cat.acc_category_type,
             acc_entry_description, acc_entry_description as remarks,
             created_by, u.first_name as created_by_first_name, u.last_name as created_by_last_name, 
-            txn_by, txn_cus.full_name as txn_by_customer_name, txn_cus.phone as txn_by_customer_phone,
-            paid_by, paid_cus.full_name as paid_by_customer_name, paid_cus.phone as paid_by_customer_phone,
-            received_for_booking_id, received_for_booking_id as booking_id, c.full_name as booking_customer_name, 
+            txn_by, CONCAT(txn_cus.first_name, ' ', txn_cus.last_name)as txn_by_customer_name, 
+            txn_cus.phone as txn_by_customer_phone,
+            paid_by, CONCAT(paid_cus.first_name, ' ', paid_cus.last_name) as paid_by_customer_name, 
+            paid_cus.phone as paid_by_customer_phone,
+            received_for_booking_id, received_for_booking_id as booking_id, 
+            CONCAT(c.first_name, ' ', c.last_name) as booking_customer_name, 
             c.phone as booking_customer_phone, r.room_name, a.payment_type
             FROM accounting_entries a 
             LEFT OUTER JOIN bookings b ON (a.received_for_booking_id = b.booking_id)
-            LEFT OUTER JOIN customers c ON (b.customer_id = c.customer_id)
+            LEFT OUTER JOIN users c ON (b.customer_id = c.user_id)
             LEFT OUTER JOIN rooms r ON (b.room_id = r.room_id)
-            INNER JOIN customers recd_cus ON (a.received_by = recd_cus.customer_id)
-            INNER JOIN customers paid_cus ON (a.paid_by = paid_cus.customer_id)
-            INNER JOIN customers txn_cus ON (a.txn_by = txn_cus.customer_id)
+            INNER JOIN users recd_cus ON (a.received_by = recd_cus.user_id)
+            INNER JOIN users paid_cus ON (a.paid_by = paid_cus.user_id)
+            INNER JOIN users txn_cus ON (a.txn_by = txn_cus.user_id)
             INNER JOIN users u ON (a.created_by = u.user_id)
             INNER JOIN accounting_categories ac_cat ON (a.acc_category_id = ac_cat.acc_category_id)
             WHERE received_for_booking_id = %s

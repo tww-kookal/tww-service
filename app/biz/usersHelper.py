@@ -1,5 +1,6 @@
 from .. import utils 
 from ..data import usersDB as userDB
+import traceback
 import logging
 from .BizExceptions import DuplicateUserException, UserNotAvailableException
 
@@ -72,3 +73,10 @@ def getFullNameOfUserByID(user_id: int):
 def getRolesForUser(user_name: int):
     return userDB.queryRolesForUserDB(user_name)
 
+def getBookingSources():
+    try:
+        return userDB.queryAllBookingSourcesDB()
+    except Exception as e:
+        logger.error(f"Exception in getBookingSources: {e}")
+        traceback.print_exc()
+        raise e

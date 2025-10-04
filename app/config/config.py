@@ -9,7 +9,6 @@ from pathlib import Path
 env_file = os.getenv("ENV_FILE", ".env.dev")
 # Explicit absolute path to the .env file
 env_path = Path(__file__).resolve().parent / env_file
-print(f"Loading environment file from: {env_path}")
 load_dotenv(dotenv_path=env_path)
 
 class Settings:
@@ -25,3 +24,4 @@ class Settings:
     GOOGLE_APP_CLIENT_ID = os.getenv("GOOGLE_APP_CLIENT_ID")
 
 settings = Settings()
+print(f"Loading environment file from: {env_path} {settings.MYSQL_DATABASE}")

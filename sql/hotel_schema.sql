@@ -14,7 +14,13 @@ CREATE TABLE users (
     last_name VARCHAR(50) NOT NULL,
     email VARCHAR(100) NOT NULL,
     phone VARCHAR(20) NOT NULL,
-    booking_commission DECIMAL (10, 2) NOT NULL DEFAULT 0
+    booking_commission DECIMAL (10, 2) NOT NULL DEFAULT 0,
+    user_type ('EMPLOYEE', 'CUSTOMER', 'BOOKING-AGENT', 'VENDOR', 'CONTRACTOR', 'PARTNER', 'CXO', 'COMPANY', 'BACK-OFFICE') NOT NULL DEFAULT 'EMPLOYEE',
+    area VARCHAR(255),
+    city VARCHAR(50),
+    state VARCHAR(50),
+    country VARCHAR(50),
+    zip_code VARCHAR(10)
 );
 
 -- Create Roles - User Mapping Table
@@ -118,3 +124,11 @@ INSERT INTO user_roles (user_id, role_id)
 VALUES (19, 1), (19, 2), (19, 3), (19, 4), (19, 5), (19, 6);
 
 commit;
+
+
+
+##ALTER TABLE users ADD COLUMN user_type ENUM('EMPLOYEE', 'CUSTOMER', 'BOOKING-AGENT', 'VENDOR', 'CONTRACTOR', 'PARTNER', 'CXO', 'COMPANY', 'BACK-OFFICE') NOT NULL DEFAULT 'EMPLOYEE';
+## ALTER TABLE users ADD COLUMN city VARCHAR(50);
+## ALTER TABLE users ADD COLUMN state VARCHAR(50);
+## ALTER TABLE users ADD COLUMN country VARCHAR(50);
+## ALTER TABLE users ADD COLUMN zip_code VARCHAR(10);

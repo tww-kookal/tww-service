@@ -38,14 +38,15 @@ def listBookingsSinceDB(startingDate: date, is_check_in_date: bool = True, conn 
     try:
         cursor = conn.cursor(dictionary=True)
         query = """
-            SELECT b.booking_id, b.customer_id, c.full_name as "customer_name", c.phone as "contact_number",
+            SELECT b.booking_id, b.customer_id, CONCAT(c.first_name, ' ', c.last_name) as "customer_name", 
+                c.phone as "contact_number",
                 c.email as "contact_email", DATEDIFF(b.check_out, b.check_in) as "number_of_nights",
                 b.room_id, r.room_name, b.number_of_people, b.check_in, b.check_out, b.status, b.booking_date, 
                 b.booked_by_id, IFNULL(b.source_of_booking_id, 0) as source_of_booking_id,
                 CONCAT(bs.first_name, ' ', bs.last_name) as "source_of_booking", b.total_price,
                 b.room_price, b.food_price, b.service_price, b.tax_price, b.discount_price, 
                 b.is_commission_settled, b.remarks, b.commission, b.commission_percent
-            FROM bookings b INNER JOIN customers c ON (b.customer_id = c.customer_id)
+            FROM bookings b INNER JOIN users c ON (b.customer_id = c.user_id)
             INNER JOIN rooms r ON (b.room_id = r.room_id)
             LEFT JOIN users bs on (b.source_of_booking_id = bs.user_id)
         """
@@ -78,14 +79,15 @@ def getBookingById(booking_id : int, conn):
     try:
         cursor = conn.cursor(dictionary=True)
         query = """
-            SELECT b.booking_id, b.customer_id, c.full_name as "customer_name", c.phone as "contact_number",
+            SELECT b.booking_id, b.customer_id, CONCAT(c.first_name, ' ', c.last_name) as "customer_name", 
+                c.phone as "contact_number",
                 c.email as "contact_email", DATEDIFF(b.check_out, b.check_in) as "number_of_nights",
                 b.room_id, r.room_name, b.number_of_people, b.check_in, b.check_out, b.status, b.booking_date, 
                 b.booked_by_id, IFNULL(b.source_of_booking_id, 0) as source_of_booking_id,
                 CONCAT(bs.first_name, ' ', bs.last_name) as "source_of_booking", b.total_price, 
                 b.room_price, b.food_price, b.service_price, b.tax_price, b.discount_price, 
                 b.is_commission_settled, b.remarks, b.commission, b.commission_percent
-            FROM bookings b INNER JOIN customers c ON (b.customer_id = c.customer_id)
+            FROM bookings b INNER JOIN users c ON (b.customer_id = c.user_id)
             INNER JOIN rooms r ON (b.room_id = r.room_id)
             LEFT JOIN users bs on (b.source_of_booking_id = bs.user_id)
             WHERE b.booking_id = %s

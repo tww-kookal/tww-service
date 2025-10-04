@@ -38,6 +38,7 @@ class UserBaseModel (BaseModel):
     email: str
     phone: str
     booking_commission: int
+    user_type: str = "CUSTOMER"
 
 class UserModel (UserBaseModel):
     password: str
@@ -142,6 +143,16 @@ async def list(request: Request, authorized_user: dict = Depends(auth.authorized
         "users": users
     } 
 
+@router.get("/bookingSource")
+@limiter.limit("10/second")
+async def list_booking_sources(request: Request, authorized_user: dict = Depends(auth.authorizedUser(["admin", "manager"])) ):
+    users = helper.getBookingSources()
+    return {
+        "status": status.HTTP_200_OK,
+        "message": "Booking Sources listed successfully",
+        "users": users
+    } 
+
 @router.post("/create")
 @limiter.limit("10/second")
 async def create(request: Request, user: UserModel, authorized_user: dict = Depends(auth.authorizedUser(["admin"])) ):
@@ -153,7 +164,7 @@ async def create(request: Request, user: UserModel, authorized_user: dict = Depe
         )
         
     try:
-        createdUser = helper.createUser(user.dict())
+        createdUser = helper.createUser(user.model_dump())
         return {
             "status": status.HTTP_201_CREATED,
             "message": "User created successfully",
