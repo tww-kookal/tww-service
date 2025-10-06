@@ -10,7 +10,7 @@ def queryUserDB(username: str):
         conn = database.get_connection()
         cursor = conn.cursor(dictionary=True)
         query  = """
-                SELECT user_id, username, first_name, last_name, email, phone, booking_commission, 
+                SELECT user_id, username, first_name, last_name, email, phone, booking_commission, user_type, 
                 password FROM users WHERE username=%s
         """
         cursor.execute(query, (username,))
@@ -26,7 +26,7 @@ def queryUserByIdDB(user_id):
     try:
         conn = database.get_connection()
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT user_id, username, first_name, last_name, email, phone, booking_commission FROM users WHERE user_id = %s", (user_id,))
+        cursor.execute("SELECT user_id, username, first_name, last_name, email, phone, booking_commission, user_type FROM users WHERE user_id = %s", (user_id,))
         user = cursor.fetchone() # Returns a tuple (user_id, username, first_name, last_name, email, phone) or None if not found
         return user
     finally:
@@ -73,11 +73,15 @@ def updateUserDetailDB(user):
         query = """
                 UPDATE users SET 
                     username=%s, first_name=%s, last_name=%s, email=%s, phone=%s, 
-                    booking_commission=%s WHERE user_id=%s
+                    booking_commission=%s, user_type=%s WHERE user_id=%s
         """
+        user_type = user["user_type"] if "user_type" in user else "CUSTOMER"
+
         try:
             cursor.execute(query,(user["username"], user["first_name"], 
-                                user["last_name"], user["email"], user["phone"], user["booking_commission"], user["user_id"]))
+                                user["last_name"], user["email"], user["phone"], user["booking_commission"], 
+                                user_type,
+                                user["user_id"]))
             conn.commit()
             return user
         except Exception as e:
@@ -111,7 +115,7 @@ def queryAllUsersDB():
     try:
         conn = database.get_connection()
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT user_id, username, first_name, last_name, email, phone, booking_commission FROM users ORDER BY first_name DESC")
+        cursor.execute("SELECT user_id, username, first_name, last_name, email, phone, booking_commission, user_type FROM users ORDER BY first_name DESC")
         users = cursor.fetchall() # Returns a list of dictionaries of users in tuple format
         return users
     finally:
