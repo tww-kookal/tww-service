@@ -110,6 +110,49 @@ def getBookingById(booking_id : int ):
             conn.close()
 
 
+def search_bookings(search_criteria: dict):
+    try:
+        conn = database.get_connection()
+        cursor = conn.cursor(dictionary=True)
+        
+        params = []
+        
+        query = """
+            SELECT b.booking_id, b.customer_id, CONCAT(c.first_name, ' ', c.last_name) as "customer_name", c.phone as "contact_number",
+                c.email as "contact_email", DATEDIFF(b.check_out, b.check_in) as "number_of_nights",
+                b.room_id, r.room_name, b.number_of_people, b.check_in, b.check_out, b.status, b.booking_date, 
+                b.booked_by_id, IFNULL(b.source_of_booking_id, 0) as source_of_booking_id,
+                CONCAT(bs.first_name, ' ', bs.last_name) as "source_of_booking", b.total_price,
+                b.room_price, b.food_price, b.service_price, b.tax_price, b.discount_price, 
+                b.is_commission_settled, b.remarks, b.commission, b.commission_percent
+            FROM bookings b INNER JOIN users c ON (b.customer_id = c.user_id)
+            INNER JOIN rooms r ON (b.room_id = r.room_id)
+            LEFT JOIN users bs on (b.source_of_booking_id = bs.user_id)
+            WHERE 1=1 
+        """
+        if 'from_date' in search_criteria and 'to_date' in search_criteria:
+            query += " AND ((b.check_in BETWEEN %s AND %s) OR (b.check_out BETWEEN %s AND %s))"
+            params.extend([search_criteria['from_date'], search_criteria['to_date'], search_criteria['from_date'], search_criteria['to_date']])
+
+        if 'guest_name' in search_criteria:
+            query += " AND CONCAT(c.first_name, ' ', c.last_name) LIKE %s"
+            params.append(f"%{search_criteria['guest_name']}%")
+        
+        if 'guest_phone' in search_criteria:
+            query += " AND c.phone LIKE %s"
+            params.append(f"%{search_criteria['guest_phone']}%")
+        
+        query += " ORDER BY check_in ASC"
+        cursor.execute(query, tuple(params))
+        bookings = cursor.fetchall()
+        return bookings
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+
 def updateBookingDB(booking: dict, is_same_room : bool = False):
     try:
         conn = database.get_connection()

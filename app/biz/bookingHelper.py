@@ -64,8 +64,16 @@ def bookRoom(booking: dict, is_update=False):
     customer = getCustomerByID(bookedRoom["customer_id"])
     bookedRoom["customer_name"] = customer["customer_name"]
     bookedRoom["customer_phone"] = customer["phone"]
-    bookedRoom["room_name"] = roomHelper.getRoomById(bookedRoom["room_id"])["room_name"]
+    bookedRoom['room_name'] = roomHelper.getRoomById(bookedRoom['room_id'])['room_name']
     return bookedRoom
+
+def search_bookings(search_criteria: dict):
+    try:
+        return bookingDB.search_bookings(search_criteria)
+    except Exception as e:
+        logger.error(f"Exception in search_bookings: {e}")
+        traceback.print_exc()
+        return []
 
 def listBookingsSince(startingDate: date = date(2020, 1, 1), is_check_in_date = False):
     try:

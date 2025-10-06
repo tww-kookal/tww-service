@@ -192,3 +192,26 @@ async def getBookingByID(
         logger.error(f"Exception in getBookingByID: {e}")
         traceback.print_exc()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Not able to get all the bookings")
+
+
+@router.post("/search")
+@limiter.limit("10/second")
+async def search_bookings(
+    request: Request,
+    search_criteria: dict,
+    authorized_user: dict = Depends(auth.authorizedUser(["admin", "manager", "owner"]))
+):
+#    from_date: date = Query(None, description="Start date for search range (YYYY-MM-DD)"),
+#    to_date: date = Query(None, description="End date for search range (YYYY-MM-DD)"),
+#    guest_name: str = Query(None, description="Guest name (case-insensitive partial match)"),
+#    guest_phone: str = Query(None, description="Guest phone number (case-insensitive partial match)"),
+    try:
+        bookings = helper.search_bookings(search_criteria)
+        return {
+            "status": status.HTTP_200_OK,
+            "bookings": bookings
+        }
+    except Exception as e:
+        logger.error(f"Exception in search_bookings: {e}")
+        traceback.print_exc()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to search bookings")
