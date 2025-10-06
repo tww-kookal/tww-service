@@ -11,7 +11,7 @@ def queryAllCustomersDB():
         cursor = conn.cursor(dictionary=True)
         query = """
             SELECT user_id as customer_id, concat(first_name, ' ', last_name) as customer_name, email, phone, area, 
-            city, state, country, zip_code 
+            city, state, country, zip_code, user_type 
             FROM users 
             WHERE user_type = 'CUSTOMER'
             ORDER BY customer_name;
@@ -30,9 +30,9 @@ def queryCustomerByIDDB(customer_id: int):
         cursor = conn.cursor(dictionary=True)
         query = """
             SELECT user_id as customer_id, concat(first_name, ' ', last_name) as customer_name, 
-            email, phone, area, city, state, country, zip_code 
+            email, phone, area, city, state, country, zip_code, user_type 
             FROM users 
-            WHERE user_id = %s
+            WHERE user_id = %s AND user_type = 'CUSTOMER'
         """
         cursor.execute(query, (customer_id,))
         customer = cursor.fetchone()
@@ -49,7 +49,7 @@ def queryCustomerByNameAndPhoneDB(customer_name: str, phone: str):
         cursor = conn.cursor(dictionary=True)
         query = """
             SELECT user_id as customer_id, concat(first_name, ' ', last_name) as customer_name, 
-            email, phone, area, city, state, country, zip_code 
+            email, phone, area, city, state, country, zip_code, user_type 
             FROM users 
             WHERE user_type = 'CUSTOMER' AND CONCAT(first_name, ' ', last_name) = %s AND phone = %s
         """
@@ -129,7 +129,7 @@ def updateCustomerDB(customer):
         query = """
             UPDATE users 
             SET first_name = %s, last_name = %s, email = %s, phone = %s, area = %s, city = %s, 
-            state = %s, country = %s, zip_code = %s
+            state = %s, country = %s, zip_code = %s, user_type = %s
             WHERE user_id = %s
         """
 
@@ -144,6 +144,7 @@ def updateCustomerDB(customer):
             customer["state"] if customer["state"] is not None else None, 
             customer["country"] if customer["country"] is not None else None, 
             customer["zip_code"] if customer["zip_code"] is not None else None,
+            'CUSTOMER',
             customer["customer_id"] if customer["customer_id"] is not None else None,
         ))
         conn.commit()
