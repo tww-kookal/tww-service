@@ -231,9 +231,9 @@ def searchTransactions(search_criteria: dict):
         if "txn_by" in search_criteria:
             where_clause.append("txn_by = %s")
             params.append(search_criteria["txn_by"])
-        if "accounting_category_type" in search_criteria:
-            where_clause.append("ac_cat.acc_category_type = %s")
-            params.append(search_criteria["accounting_category_type"])
+        if "acc_category_id" in search_criteria:
+            where_clause.append("a.acc_category_id = %s")
+            params.append(search_criteria["acc_category_id"])
         if "received_by" in search_criteria:
             where_clause.append("received_by = %s")
             params.append(search_criteria["received_by"])
