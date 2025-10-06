@@ -68,3 +68,12 @@ def deleteTransaction(transactionId: int):
         logger.error (f"Exception in helper.deleteTransaction: {e}")
         traceback.print_exc()
         raise e
+
+def searchTransactions(search_criteria: dict):
+    try:
+        logger.debug(f"inside searchTransactions with criteria {search_criteria}")
+        return data.searchTransactions(search_criteria)
+    except Exception as e:
+        logger.error (f"Exception in helper.searchTransactions: {e}")
+        traceback.print_exc()
+        raise e

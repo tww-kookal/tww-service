@@ -12,7 +12,7 @@ def listAllAccountingCategories():
         query = """
             SELECT acc_category_id, acc_category_name, acc_category_type
             FROM accounting_categories
-            ORDER BY acc_category_name
+            ORDER BY acc_category_type, acc_category_name ASC
         """
         cursor.execute(query)
         return cursor.fetchall()
@@ -197,53 +197,59 @@ def deleteTransaction(transactionId ):
             conn.close()
 
 
-""""
-def create_accounting_entry(db: Session, entry: AccountingEntryCreate):
+def searchTransactions(search_criteria: dict):
     try:
-        db_entry = AccountingEntry(**entry.model_dump())
-        db.add(db_entry)
-        db.commit()
-        db.refresh(db_entry)
-        return db_entry
-    except Exception as e:
-        db.rollback()
-        logger.error (f"Exception in create_accounting_entry: {e}")
-        traceback.print_exc()
-        raise e
+        conn = database.get_connection()
+        cursor = conn.cursor(dictionary=True)
+        query = """
+            SELECT acc_entry_id, acc_entry_amount, acc_entry_description, acc_entry_date, 
+            a.acc_category_id, ac_cat.acc_category_name, ac_cat.acc_category_type,
+            created_by, u.first_name as created_by_first_name, u.last_name as created_by_last_name, 
+            txn_by, CONCAT(txn_cus.first_name, ' ', txn_cus.last_name) as txn_by_customer_name, txn_cus.phone as txn_by_customer_phone,
+            paid_by, CONCAT(paid_cus.first_name, ' ', paid_cus.last_name) as paid_by_customer_name, paid_cus.phone as paid_by_customer_phone,
+            received_by, CONCAT(recd_cus.first_name, ' ', recd_cus.last_name) as received_by_customer_name, recd_cus.phone as received_by_customer_phone,
+            received_for_booking_id, CONCAT(c.first_name, ' ', c.last_name) as booking_customer_name, 
+            c.phone as booking_customer_phone, r.room_name, a.payment_type
+            FROM accounting_entries a 
+            LEFT OUTER JOIN bookings b ON (a.received_for_booking_id = b.booking_id)
+            LEFT OUTER JOIN users c ON (b.customer_id = c.user_id)
+            LEFT OUTER JOIN rooms r ON (b.room_id = r.room_id)
+            INNER JOIN users recd_cus ON (a.received_by = recd_cus.user_id)
+            INNER JOIN users paid_cus ON (a.paid_by = paid_cus.user_id)
+            INNER JOIN users txn_cus ON (a.txn_by = txn_cus.user_id)
+            INNER JOIN users u ON (a.created_by = u.user_id)
+            INNER JOIN accounting_categories ac_cat ON (a.acc_category_id = ac_cat.acc_category_id)
+        """
+        where_clause = []
+        params = []
+        if "transaction_date" in search_criteria:
+            where_clause.append("acc_entry_date >= %s")
+            params.append(search_criteria["transaction_date"])
+        if "paid_by" in search_criteria:
+            where_clause.append("paid_by = %s")
+            params.append(search_criteria["paid_by"])
+        if "txn_by" in search_criteria:
+            where_clause.append("txn_by = %s")
+            params.append(search_criteria["txn_by"])
+        if "accounting_category_type" in search_criteria:
+            where_clause.append("ac_cat.acc_category_type = %s")
+            params.append(search_criteria["accounting_category_type"])
+        if "received_by" in search_criteria:
+            where_clause.append("received_by = %s")
+            params.append(search_criteria["received_by"])
+        if "booking_id" in search_criteria:
+            where_clause.append("received_for_booking_id = %s")
+            params.append(search_criteria["booking_id"])
+        
+        if where_clause:
+            query += " WHERE " + " AND ".join(where_clause)
+        
+        query += " ORDER BY acc_entry_date, acc_category_name"
 
-def get_accounting_parties(db: Session):
-    try:
-        return db.query(AccountingParty).all()
-    except Exception as e:
-        logger.error (f"Exception in get_accounting_parties: {e}")
-        traceback.print_exc()
-        raise e
-
-def create_accounting_party(db: Session, party: AccountingPartyCreate):
-    try:
-        db_party = AccountingParty(**party.model_dump())
-        db.add(db_party)
-        db.commit()
-        db.refresh(db_party)
-        return db_party
-    except Exception as e:
-        db.rollback()
-        logger.error (f"Exception in create_accounting_party: {e}")
-        traceback.print_exc()
-        raise e
-
-def update_accounting_party(db: Session, party_id: int, party: AccountingPartyCreate):
-    try:
-        db_party = db.query(AccountingParty).filter(AccountingParty.id == party_id).first()
-        if db_party:
-            for key, value in party.model_dump().items():
-                setattr(db_party, key, value)
-            db.commit()
-            db.refresh(db_party)
-            return db_party
-        return None
-    except Exception as e:
-        db.rollback()
-        logger.error (f"Exception in update_accounting_party: {e}")
-        traceback.print_exc()
-        raise e """
+        cursor.execute(query, tuple(params))
+        return cursor.fetchall()
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
