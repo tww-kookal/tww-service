@@ -114,6 +114,7 @@ def list_entries(request: Request, bookingId: int, authorized_user: dict = Depen
 @limiter.limit("10/second")
 def search_transactions(request: Request, search_criteria: dict, authorized_user: dict = Depends(auth.authorizedUser(["manager", "owner"]))):
     try:
+        search_criteria.update({"type": "transaction"})
         logger.debug(f"Search Transaction Request : {search_criteria}")
         return {
             "status": status.HTTP_200_OK,
@@ -124,3 +125,19 @@ def search_transactions(request: Request, search_criteria: dict, authorized_user
         logger.error(f"Exception in search_transactions: {e}")
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
+    
+@router.post("/expenses/search")
+@limiter.limit("10/second")
+def search_expenses(request: Request, search_criteria: dict, authorized_user: dict = Depends(auth.authorizedUser(["manager", "owner", 'employee']))):
+    try:
+        search_criteria.update({"type": "expense"})        
+        logger.debug(f"Search Expense Request : {search_criteria}")
+        return {
+            "status": status.HTTP_200_OK,
+            "message": "Success",
+            "transactions": helper.searchTransactions(search_criteria)
+        }
+    except Exception as e:
+        logger.error(f"Exception in search_transactions: {e}")
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))    

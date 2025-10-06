@@ -153,6 +153,26 @@ async def list_booking_sources(request: Request, authorized_user: dict = Depends
         "users": users
     } 
 
+@router.get("/employees")
+@limiter.limit("10/second")
+async def list_employees(request: Request, authorized_user: dict = Depends(auth.authorizedUser(["admin", "manager"])) ):
+    users = helper.getEmployees()
+    return {
+        "status": status.HTTP_200_OK,
+        "message": "Employees listed successfully",
+        "users": users
+    } 
+
+@router.get("/vendors")
+@limiter.limit("10/second")
+async def list_vendors(request: Request, authorized_user: dict = Depends(auth.authorizedUser(["admin", "manager"])) ):
+    users = helper.getVendors()
+    return {
+        "status": status.HTTP_200_OK,
+        "message": "Vendors listed successfully",
+        "users": users
+    } 
+
 @router.post("/create")
 @limiter.limit("10/second")
 async def create(request: Request, user: UserModel, authorized_user: dict = Depends(auth.authorizedUser(["admin"])) ):

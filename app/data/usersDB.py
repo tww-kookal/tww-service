@@ -177,3 +177,39 @@ def queryAllBookingSourcesDB():
             cursor.close()
         if conn:
             conn.close()
+
+def queryAllEmployeesDB():
+    try:
+        conn = database.get_connection()
+        cursor = conn.cursor(dictionary=True)
+        query = """
+                SELECT user_id, username, first_name, last_name, email, phone, booking_commission, user_type 
+                FROM users 
+                WHERE user_type IN ('EMPLOYEE', 'PARTNER', 'CXO', 'COMPANY')
+                ORDER BY first_name DESC
+        """
+        cursor.execute(query)
+        return cursor.fetchall() # Returns a list of dictionaries of employees in tuple format
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+def queryAllVendorsDB():
+    try:
+        conn = database.get_connection()
+        cursor = conn.cursor(dictionary=True)
+        query = """
+                SELECT user_id, username, first_name, last_name, email, phone, booking_commission, user_type 
+                FROM users 
+                WHERE user_type IN ('VENDOR')
+                ORDER BY first_name DESC
+        """
+        cursor.execute(query)
+        return cursor.fetchall() # Returns a list of dictionaries of vendors in tuple format
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()

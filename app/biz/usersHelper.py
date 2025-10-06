@@ -80,3 +80,19 @@ def getBookingSources():
         logger.error(f"Exception in getBookingSources: {e}")
         traceback.print_exc()
         raise e
+
+def getEmployees():
+    try:
+        return userDB.queryAllEmployeesDB()
+    except Exception as e:
+        logger.error(f"Exception in getEmployees: {e}")
+        traceback.print_exc()
+        raise e
+    
+def getVendors():
+    try:
+        return userDB.queryAllVendorsDB()
+    except Exception as e:
+        logger.error(f"Exception in getVendors: {e}")
+        traceback.print_exc()
+        raise e

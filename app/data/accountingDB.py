@@ -222,6 +222,8 @@ def searchTransactions(search_criteria: dict):
         """
         where_clause = []
         params = []
+        if "type" in search_criteria and search_criteria["type"] in ["expense"]:
+            where_clause.append("ac_cat.acc_category_type = 'debit'")
         if "transaction_date" in search_criteria:
             where_clause.append("acc_entry_date >= %s")
             params.append(search_criteria["transaction_date"])
