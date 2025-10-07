@@ -75,9 +75,18 @@ def extract_names(full_name: str):
         last_name = ' '.join(customer_name_parts[2:])
     return first_name,last_name
 
-def createCustomerDB(customer):
+def createCustomerDB(customer):    
     conn = database.get_connection()
     try:
+        # Check if customer_name is empty
+        if not customer["user_type"]:
+            logger.error(f"User Type is empty")
+            raise Exception("User Type is empty")
+        # Check if phone is empty
+        if not customer["phone"]:
+            logger.error(f"Phone is empty")
+            raise Exception("Phone is empty")
+        
         duplicateCustomer = queryCustomerByNameAndPhoneDB(customer["customer_name"], customer["phone"])
         if len(duplicateCustomer) > 0:
             logger.info(f"Customer Already Exists")
@@ -97,8 +106,8 @@ def createCustomerDB(customer):
         response = cursor.execute(query, (
             username,
             'no-password',
-            "CUSTOMER",
-            first_name if first_name is not None else None, 
+            customer["user_type"] if customer["user_type"] is not None else None,
+            first_name if first_name is not None else None,
             last_name if last_name is not None else None,
             customer["email"] if customer["email"] is not None else None,
             customer["phone"] if customer["phone"] is not None else None,
@@ -125,6 +134,14 @@ def createCustomerDB(customer):
 def updateCustomerDB(customer):
     conn = database.get_connection()
     try:
+        # Check if customer_name is empty
+        if not customer["user_type"]:
+            logger.error(f"User Type is empty")
+            raise Exception("User Type is empty")
+        # Check if phone is empty
+        if not customer["phone"]:
+            logger.error(f"Phone is empty")
+            raise Exception("Phone is empty")
         first_name, last_name = extract_names(customer["customer_name"])
         query = """
             UPDATE users 
@@ -144,7 +161,7 @@ def updateCustomerDB(customer):
             customer["state"] if customer["state"] is not None else None, 
             customer["country"] if customer["country"] is not None else None, 
             customer["zip_code"] if customer["zip_code"] is not None else None,
-            'CUSTOMER',
+            customer["user_type"] if customer["user_type"] is not None else None,
             customer["customer_id"] if customer["customer_id"] is not None else None,
         ))
         conn.commit()

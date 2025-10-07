@@ -38,7 +38,7 @@ class UserBaseModel (BaseModel):
     email: str
     phone: str
     booking_commission: int
-    user_type: str = "CUSTOMER"
+    user_type: str
 
 class UserModel (UserBaseModel):
     password: str
@@ -51,6 +51,7 @@ class UerDetailModel (BaseModel):
     email: str
     phone: str
     booking_commission: int
+    user_type: str
     
 class TokenRequest(BaseModel):
     token: str    
@@ -212,8 +213,8 @@ async def update(request: Request, user: UerDetailModel, authorized_user: dict =
         )
         
     try:
-        logger.debug("UserAPI::update::user: %s", user.dict())
-        updatedUser = helper.updateUserDetail(user.dict())
+        logger.debug("UserAPI::update::user: %s", user.model_dump())
+        updatedUser = helper.updateUserDetail(user.model_dump())
         return {
             "status": status.HTTP_200_OK,
             "message": "User updated successfully",
