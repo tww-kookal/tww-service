@@ -138,6 +138,10 @@ def search_bookings(search_criteria: dict):
             query += " AND CONCAT(c.first_name, ' ', c.last_name) LIKE %s"
             params.append(f"%{search_criteria['guest_name']}%")
         
+        if 'source_of_booking_id' in search_criteria:
+            query += " AND b.source_of_booking_id = %s"
+            params.append(search_criteria['source_of_booking_id'])
+
         if 'guest_phone' in search_criteria:
             query += " AND c.phone LIKE %s"
             params.append(f"%{search_criteria['guest_phone']}%")
