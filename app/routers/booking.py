@@ -63,7 +63,7 @@ async def check_room_availability(
 
 @router.post("/updateBooking")
 @limiter.limit("10/second")
-def update_booking(request: Request, booking: BookingModel,authorized_user: dict = Depends(auth.authorizedUser(["manager", 'agent', 'owner'])) ):
+async def update_booking(request: Request, booking: BookingModel,authorized_user: dict = Depends(auth.authorizedUser(["manager", 'agent', 'owner'])) ):
     try:
         bookingDict = booking.model_dump()
         bookingDict["booked_by"] = authorized_user['user_name']
@@ -89,7 +89,7 @@ def update_booking(request: Request, booking: BookingModel,authorized_user: dict
 
 @router.post("/createBooking")
 @limiter.limit("10/second")
-def book_room(request: Request, booking: BookingModel,authorized_user: dict = Depends(auth.authorizedUser(["manager", 'agent', 'owner'])) ):
+async def book_room(request: Request, booking: BookingModel,authorized_user: dict = Depends(auth.authorizedUser(["manager", 'agent', 'owner'])) ):
     try:
         bookingDict = booking.model_dump()
         bookingDict["booked_by"] = authorized_user['user_name']
@@ -165,7 +165,7 @@ async def listAllBookings(
     
 @router.get("/guestsForDay/{forDate}")
 @limiter.limit("10/second")
-def noOfGuest(request: Request, forDate: date, authorized_user: dict = Depends(auth.authorizedUser(["admin", 'manager', 'owner']))):
+async def noOfGuest(request: Request, forDate: date, authorized_user: dict = Depends(auth.authorizedUser(["admin", 'manager', 'owner']))):
     try:
         return helper.guestsForDay(forDate)
     except Exception as e:

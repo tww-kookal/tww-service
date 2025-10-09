@@ -8,7 +8,6 @@ from .. import utils
 from ..config import config
 from ..biz import usersHelper as userHelper
 
-
 router = APIRouter(
     prefix="/api/v1",  # all routes start with /api/v1
     tags=["Login"]    # OpenAPI grouping
