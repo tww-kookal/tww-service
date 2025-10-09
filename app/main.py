@@ -70,8 +70,6 @@ app.add_middleware(
 )
 
 # Include routers
-app.include_router(gateway.router)
-
 app.include_router(admin.router)
 app.include_router(login.router)
 app.include_router(rooms.router)
@@ -82,5 +80,3 @@ app.include_router(reports.router)
 app.include_router(booking.router)
 app.include_router(payments.router)
 app.include_router(accounting.router)
-
-app.include_router(gateway.router)

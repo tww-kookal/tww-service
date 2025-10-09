@@ -18,7 +18,7 @@ logger = logging.getLogger("tww.service.accounting")
 # Category Endpoints
 @router.get("/categories")
 @limiter.limit("10/second")
-def list_categories(request: Request, authorized_user: dict = Depends(auth.authorizedUser(["manager", "employee", "owner"]))):
+async def list_categories(request: Request, authorized_user: dict = Depends(auth.authorizedUser(["manager", "employee", "owner"]))):
     try:
         return {
             "status": status.HTTP_200_OK,
@@ -32,7 +32,7 @@ def list_categories(request: Request, authorized_user: dict = Depends(auth.autho
     
 @router.post("/transaction/add")
 @limiter.limit("10/second")
-def add_transaction(request: Request, transaction: dict, authorized_user: dict = Depends(auth.authorizedUser(["manager", "employee", "owner"]))):
+async def add_transaction(request: Request, transaction: dict, authorized_user: dict = Depends(auth.authorizedUser(["manager", "employee", "owner"]))):
     try:
         transaction['created_by'] = authorized_user['user_name']
         return {
@@ -47,7 +47,7 @@ def add_transaction(request: Request, transaction: dict, authorized_user: dict =
     
 @router.post("/transaction/update")
 @limiter.limit("10/second")
-def update_transaction(request: Request, transaction: dict, authorized_user: dict = Depends(auth.authorizedUser(["manager", "employee", "owner"]))):
+async def update_transaction(request: Request, transaction: dict, authorized_user: dict = Depends(auth.authorizedUser(["manager", "employee", "owner"]))):
     try:
         transaction['created_by'] = authorized_user['user_name']
         return {
@@ -62,7 +62,7 @@ def update_transaction(request: Request, transaction: dict, authorized_user: dic
 
 @router.post("/transaction/deleteById/{transactionId}")
 @limiter.limit("10/second")
-def delete_transaction(request: Request, transactionId: int, authorized_user: dict = Depends(auth.authorizedUser(["manager", "employee", "owner"]))):
+async def delete_transaction(request: Request, transactionId: int, authorized_user: dict = Depends(auth.authorizedUser(["manager", "employee", "owner"]))):
     try:
         return {
             "status": status.HTTP_201_CREATED,
@@ -76,7 +76,7 @@ def delete_transaction(request: Request, transactionId: int, authorized_user: di
 
 @router.get("/transactions")
 @limiter.limit("10/second")
-def list_entries(request: Request, authorized_user: dict = Depends(auth.authorizedUser(["manager", "owner"]))):
+async def list_entries(request: Request, authorized_user: dict = Depends(auth.authorizedUser(["manager", "owner"]))):
     try:
         return {
             "status": status.HTTP_200_OK,
@@ -88,7 +88,7 @@ def list_entries(request: Request, authorized_user: dict = Depends(auth.authoriz
 
 @router.get("/transactions/{transactionDate}")
 @limiter.limit("10/second")
-def list_entries(request: Request, transactionDate: date, authorized_user: dict = Depends(auth.authorizedUser(["manager", "owner"]))):
+async def list_entries(request: Request, transactionDate: date, authorized_user: dict = Depends(auth.authorizedUser(["manager", "owner"]))):
     try:
         return {
             "status": status.HTTP_200_OK,
@@ -100,7 +100,7 @@ def list_entries(request: Request, transactionDate: date, authorized_user: dict 
 
 @router.get("/payment/forBookingID/{bookingId}")
 @limiter.limit("30/second")
-def list_entries(request: Request, bookingId: int, authorized_user: dict = Depends(auth.authorizedUser(["manager", "owner"]))):
+async def list_entries(request: Request, bookingId: int, authorized_user: dict = Depends(auth.authorizedUser(["manager", "owner"]))):
     try:
         return {
             "status": status.HTTP_200_OK,
@@ -112,7 +112,7 @@ def list_entries(request: Request, bookingId: int, authorized_user: dict = Depen
 
 @router.post("/transactions/search")
 @limiter.limit("10/second")
-def search_transactions(request: Request, search_criteria: dict, authorized_user: dict = Depends(auth.authorizedUser(["manager", "owner"]))):
+async def search_transactions(request: Request, search_criteria: dict, authorized_user: dict = Depends(auth.authorizedUser(["manager", "owner"]))):
     try:
         logger.debug(f"Search Transaction Request : {search_criteria}")
         return {
@@ -127,7 +127,7 @@ def search_transactions(request: Request, search_criteria: dict, authorized_user
     
 @router.post("/expenses/search")
 @limiter.limit("10/second")
-def search_expenses(request: Request, search_criteria: dict, authorized_user: dict = Depends(auth.authorizedUser(["manager", "owner", 'employee']))):
+asyncdef search_expenses(request: Request, search_criteria: dict, authorized_user: dict = Depends(auth.authorizedUser(["manager", "owner", 'employee']))):
     try:
         search_criteria.update({"acc_category_type": "debit"})
         logger.debug(f"Search Expense Request : {search_criteria}")
@@ -143,7 +143,7 @@ def search_expenses(request: Request, search_criteria: dict, authorized_user: di
     
 @router.post("/consolidated/search")
 @limiter.limit("10/second")
-def search_consolidated(request: Request, search_criteria: dict, authorized_user: dict = Depends(auth.authorizedUser(["manager", "owner", 'employee']))):
+async def search_consolidated(request: Request, search_criteria: dict, authorized_user: dict = Depends(auth.authorizedUser(["manager", "owner", 'employee']))):
     try:
         logger.debug(f"Search Consolidated Request : {search_criteria}")
         return {
