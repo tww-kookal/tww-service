@@ -140,7 +140,8 @@ async def search_expenses(request: Request, search_criteria: dict, authorized_us
         logger.error(f"Exception in search_transactions: {e}")
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))    
-    
+        
+@router.post("/consolidated/search/")
 @router.post("/consolidated/search")
 @limiter.limit("10/second")
 async def search_consolidated(request: Request, search_criteria: dict, authorized_user: dict = Depends(auth.authorizedUser(["manager", "owner", 'employee']))):
@@ -155,3 +156,4 @@ async def search_consolidated(request: Request, search_criteria: dict, authorize
         logger.error(f"Exception in search_transactions: {e}")
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))        
+    
