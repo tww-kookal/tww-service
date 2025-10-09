@@ -22,6 +22,7 @@ from pydantic import BaseModel
 class CustomerModel (BaseModel):
     customer_id: str
     customer_name: str
+    user_type: str
     phone: str
     email: str
     city: str
