@@ -127,7 +127,7 @@ async def search_transactions(request: Request, search_criteria: dict, authorize
     
 @router.post("/expenses/search")
 @limiter.limit("10/second")
-asyncdef search_expenses(request: Request, search_criteria: dict, authorized_user: dict = Depends(auth.authorizedUser(["manager", "owner", 'employee']))):
+async def search_expenses(request: Request, search_criteria: dict, authorized_user: dict = Depends(auth.authorizedUser(["manager", "owner", 'employee']))):
     try:
         search_criteria.update({"acc_category_type": "debit"})
         logger.debug(f"Search Expense Request : {search_criteria}")
