@@ -222,11 +222,18 @@ def searchTransactions(search_criteria: dict):
         """
         where_clause = []
         params = []
-        if "type" in search_criteria and search_criteria["type"] in ["expense"]:
+        if "acc_category_type" in search_criteria and search_criteria["acc_category_type"] in ["debit"]:
             where_clause.append("ac_cat.acc_category_type = 'debit'")
+        if "acc_category_type" in search_criteria and search_criteria["acc_category_type"] in ["credit"]:
+            where_clause.append("ac_cat.acc_category_type = 'credit'")
+        if "acc_category_type" in search_criteria and search_criteria["acc_category_type"] in ["transaction"]:
+            where_clause.append("ac_cat.acc_category_type like '%'")
         if "transaction_date" in search_criteria:
             where_clause.append("acc_entry_date >= %s")
             params.append(search_criteria["transaction_date"])
+        if "transaction_end_date" in search_criteria:
+            where_clause.append("acc_entry_date <= %s")
+            params.append(search_criteria["transaction_end_date"])
         if "paid_by" in search_criteria:
             where_clause.append("paid_by = %s")
             params.append(search_criteria["paid_by"])

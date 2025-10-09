@@ -71,9 +71,30 @@ def deleteTransaction(transactionId: int):
 
 def searchTransactions(search_criteria: dict):
     try:
-        logger.debug(f"inside searchTransactions with criteria {search_criteria}")
+        logger.debug(f"inside searchTransactions with criteria ")
         return data.searchTransactions(search_criteria)
     except Exception as e:
         logger.error (f"Exception in helper.searchTransactions: {e}")
+        traceback.print_exc()
+        raise e
+    
+def fetchConsolidatedTransactions(search_criteria: dict):
+    try:
+        logger.debug(f"inside fetchConsolidatedTransactions with criteria")
+        transactions = data.searchTransactions(search_criteria)
+        # filter for transaction's acc_category_type is 'debit' and calculate the sum
+        expenses = [txn for txn in transactions if txn['acc_category_type'] == 'debit']
+        total_expenses = sum([txn['acc_entry_amount'] for txn in expenses])
+
+        sales = [txn for txn in transactions if txn['acc_category_type'] == 'credit']
+        total_sales = sum([txn['acc_entry_amount'] for txn in sales])
+
+        return {
+            "expenses": total_expenses,
+            "sales": total_sales,
+            "revenue": total_sales - total_expenses
+        }
+    except Exception as e:
+        logger.error (f"Exception in helper.fetchConsolidatedTransactions: {e}")
         traceback.print_exc()
         raise e
