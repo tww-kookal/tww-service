@@ -40,7 +40,12 @@ INSERT INTO accounting_categories (acc_category_id, acc_category_name, acc_categ
     (11, 'Advance Payment', 'credit'),
     (12, 'Part Payment', 'credit'),
     (13, 'Balance Payment', 'credit'),
-    (14, 'Refund from Vendor', 'credit');
+    (14, 'Refund from Vendor', 'credit'),
+    (15, 'Commission Payout', 'debit'),
+    (16, 'Food Bill for Guest', 'credit');
+
+INSERT INTO accounting_categories (acc_category_name, acc_category_type) VALUES
+('Food Bill for Guest', 'credit');
 
 INSERT INTO accounting_entries 
 (acc_category_id, acc_entry_amount, acc_entry_description, acc_entry_date, created_by, txn_by, paid_by, received_by, received_for_booking_id, payment_type)

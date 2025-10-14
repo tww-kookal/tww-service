@@ -61,6 +61,8 @@ class TokenRequest(BaseModel):
 async def googleSignup(request: Request, tokenrequest: TokenRequest):
     try:
         userInfo = auth.getUserDetailsFromAccessToken(tokenrequest.token)
+        if "user_type" not in userInfo:
+            userInfo["user_type"] = "CUSTOMER"
         createdUser = helper.createUser(userInfo)
         return {
             "status": status.HTTP_201_CREATED,
