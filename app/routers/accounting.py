@@ -156,4 +156,19 @@ async def search_consolidated(request: Request, search_criteria: dict, authorize
         logger.error(f"Exception in search_transactions: {e}")
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))        
+
+@router.post("/commission-payouts/add")
+@limiter.limit("10/second")
+async def add_commission_payout(request: Request, commission_payout: dict, authorized_user: dict = Depends(auth.authorizedUser(["manager", "owner"]))):
+    try:
+        logger.debug(f"Add Commission Payout Request : {commission_payout}")
+        return {
+            "status": status.HTTP_200_OK,
+            "message": "Success",
+            "transactions": helper.addCommissionPayout(commission_payout)
+        }
+    except Exception as e:
+        logger.error(f"Exception in add_commission_payout: {e}")
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Unable to add the commission payout")        
     

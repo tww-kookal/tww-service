@@ -22,9 +22,55 @@ def listAllAccountingCategories():
         if conn:
             conn.close()
 
-def insertTransaction(transaction: dict):
+def createCommissionPayout(commission_payout: dict):
     try:
         conn = database.get_connection()
+        selected_bookings = commission_payout["selected_bookings"] if "selected_bookings" in commission_payout else []
+        
+        cursor = conn.cursor()
+        placeholders = ', '.join(['%s'] * len(selected_bookings))
+        query = f"""
+            UPDATE bookings
+            SET is_commission_settled = 1
+            WHERE booking_id IN ({placeholders})
+        """
+        logger.info(f"Query: {query}")
+
+        cursor.execute(query, selected_bookings)
+
+        insertTransaction({
+            "acc_category_id": commission_payout["acc_category_id"],
+            "acc_entry_amount": commission_payout["acc_entry_amount"],
+            "acc_entry_date": commission_payout["acc_entry_date"],
+            "acc_entry_description": commission_payout["acc_entry_description"],
+            "created_by": commission_payout["created_by"],
+            "txn_by": commission_payout["txn_by"],
+            "paid_by": commission_payout["paid_by"],
+            "received_by": commission_payout["received_by"],
+            "payment_type": commission_payout["payment_type"],
+            "received_for_booking_id": 0,
+        }, conn)
+
+        conn.commit()
+        return
+    except Exception as e:
+        conn.rollback()
+        logger.error (f"Exception in data.createCommissionPayout: {e}")
+        traceback.print_exc()
+        raise e
+    finally:
+        if conn:
+            conn.close()
+        if cursor:
+            cursor.close()
+
+def insertTransaction(transaction: dict, conn = database.get_connection()):
+    is_other = False
+    try:
+        logger.info("Inserting transaction")
+        if not conn:
+            conn = database.get_connection()
+            is_other = True
         cursor = conn.cursor()
         query = """
             INSERT INTO accounting_entries 
@@ -50,13 +96,14 @@ def insertTransaction(transaction: dict):
             transaction["received_for_booking_id"],
             transaction["payment_type"]
         ))
-        conn.commit()
+        if is_other:
+            conn.commit()
         transaction["acc_entry_id"] = cursor.lastrowid
         return transaction
     finally:
         if cursor:
             cursor.close()
-        if conn:
+        if conn and is_other:
             conn.close()
 
 def queryTransactionsSince(transactionDate: date):

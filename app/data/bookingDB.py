@@ -145,8 +145,14 @@ def search_bookings(search_criteria: dict):
         if 'guest_phone' in search_criteria:
             query += " AND c.phone LIKE %s"
             params.append(f"%{search_criteria['guest_phone']}%")
-        
+
+
+        if 'is_commission_settled' in search_criteria :
+            query += " AND b.is_commission_settled = %s"
+            params.append(0 if search_criteria['is_commission_settled'] == False else 1)
+
         query += " ORDER BY check_in ASC"
+
         cursor.execute(query, tuple(params))
         bookings = cursor.fetchall()
         return bookings

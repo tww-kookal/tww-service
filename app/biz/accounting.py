@@ -98,3 +98,16 @@ def fetchConsolidatedTransactions(search_criteria: dict):
         logger.error (f"Exception in helper.fetchConsolidatedTransactions: {e}")
         traceback.print_exc()
         raise e
+    
+def addCommissionPayout(commission_payout: dict):
+    try:
+        logger.debug(f"inside addCommissionPayout with criteria {commission_payout}")
+        selected_bookings = commission_payout["selected_bookings"] if "selected_bookings" in commission_payout else []
+        if not selected_bookings or selected_bookings == []:
+            logger.error("No bookings selected for commission payout")
+            raise Exception("No bookings selected for commission payout")
+        return data.createCommissionPayout(commission_payout)
+    except Exception as e:
+        logger.error (f"Exception in helper.addCommissionPayout: {e}")
+        traceback.print_exc()
+        raise e
