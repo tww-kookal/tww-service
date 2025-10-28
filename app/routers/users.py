@@ -187,20 +187,26 @@ async def create(request: Request, user: UserModel, authorized_user: dict = Depe
         )
         
     try:
-        createdUser = helper.createUser(user.model_dump())
+        request = user.model_dump()
+        first_name = request["first_name"]
+        last_name = request["last_name"]
+        request["username"] = f"{first_name.lower()}_{last_name.lower()}_{request['phone'][:5]}"
+        createdUser = helper.createUser(request)
         return {
             "status": status.HTTP_201_CREATED,
             "message": "User created successfully",
             "user": createdUser
         }
     except helper.DuplicateUserException as e:
+        logger.error("DuplicateUserException creating user: %s", e)
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=e.message
         )
     except Exception as e:
+        logger.error("Exception creating user: %s", e)
         raise HTTPException(
-            status_code=status.HTTP_412_PRECONDITION_FAILED,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Unable to create user, check logs"
         )
 

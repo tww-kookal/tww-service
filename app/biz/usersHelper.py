@@ -16,17 +16,21 @@ def queryUser(username: str):
     return userDB.queryUserDB(username)
 
 def createUser(user: dict):
-    if queryUser(user["username"]):
-        raise DuplicateUserException(message="Username already registered")
+    try:
+        if queryUser(user["username"]):
+            raise DuplicateUserException(message="Username already registered")
 
-    if "password" not in user:
-        user["password"] = "password@123"
+        if "password" not in user:
+            user["password"] = "password@123"
 
-    if "booking_commission" not in user:
-        user["booking_commission"] = 0.0
+        if "booking_commission" not in user:
+            user["booking_commission"] = 0.0
 
-    user["hashed_password"] = utils.hash_password(user["password"])
-    return userDB.persistUserDB(user)
+        user["hashed_password"] = utils.hash_password(user["password"])
+        return userDB.persistUserDB(user)
+    except Exception as e:
+        logger.error("Exception creating user: %s", e)
+        raise e
 
 def updateUserDetail(user: dict):
     logger.debug(f"UpdateUserDetail:: Query User {user}")

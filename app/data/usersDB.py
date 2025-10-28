@@ -58,6 +58,10 @@ def persistUserDB(user):
         user["user_id"] = cursor.lastrowid
         conn.commit()
         return user
+    except Exception as e:
+        logger.error("Exception while persisting user: %s", e)
+        conn.rollback()
+        raise e
     finally:
         if cursor:
             cursor.close()
