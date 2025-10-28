@@ -100,3 +100,11 @@ def getVendors():
         logger.error(f"Exception in getVendors: {e}")
         traceback.print_exc()
         raise e
+
+def getNonCustomers():
+    try:
+        return userDB.queryAllNonCustomersDB()
+    except Exception as e:
+        logger.error(f"Exception in getNonCustomers: {e}")
+        traceback.print_exc()
+        raise e

@@ -176,6 +176,16 @@ async def list_vendors(request: Request, authorized_user: dict = Depends(auth.au
         "users": users
     } 
 
+@router.get("/non-customers")
+@limiter.limit("10/second")
+async def list_non_customers(request: Request, authorized_user: dict = Depends(auth.authorizedUser(["admin", "manager"])) ):
+    users = helper.getNonCustomers()
+    return {
+        "status": status.HTTP_200_OK,
+        "message": "Non-Customers listed successfully",
+        "users": users
+    } 
+
 @router.post("/create")
 @limiter.limit("10/second")
 async def create(request: Request, user: UserModel, authorized_user: dict = Depends(auth.authorizedUser(["admin"])) ):

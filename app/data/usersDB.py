@@ -218,3 +218,21 @@ def queryAllVendorsDB():
             cursor.close()
         if conn:
             conn.close()
+
+def queryAllNonCustomersDB():
+    try:
+        conn = database.get_connection()
+        cursor = conn.cursor(dictionary=True)
+        query = """
+                SELECT user_id, username, first_name, last_name, email, phone, booking_commission, user_type 
+                FROM users 
+                WHERE user_type NOT IN ('CUSTOMER')
+                ORDER BY first_name DESC
+        """
+        cursor.execute(query)
+        return cursor.fetchall() # Returns a list of dictionaries of non-customers in tuple format
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
