@@ -35,28 +35,12 @@ def createCommissionPayout(commission_payout: dict):
             WHERE booking_id IN ({placeholders})
         """
         logger.info(f"Query: {query}")
-
         cursor.execute(query, selected_bookings)
-
-        insertTransaction({
-            "acc_category_id": commission_payout["acc_category_id"],
-            "acc_entry_amount": commission_payout["acc_entry_amount"],
-            "acc_entry_date": commission_payout["acc_entry_date"],
-            "acc_entry_description": commission_payout["acc_entry_description"],
-            "created_by": commission_payout["created_by"],
-            "txn_by": commission_payout["txn_by"],
-            "paid_by": commission_payout["paid_by"],
-            "received_by": commission_payout["received_by"],
-            "payment_type": commission_payout["payment_type"],
-            "received_for_booking_id": 0,
-        }, conn)
-
         conn.commit()
         return
     except Exception as e:
         conn.rollback()
         logger.error (f"Exception in data.createCommissionPayout: {e}")
-        traceback.print_exc()
         raise e
     finally:
         if conn:
@@ -64,13 +48,11 @@ def createCommissionPayout(commission_payout: dict):
         if cursor:
             cursor.close()
 
-def insertTransaction(transaction: dict, conn = database.get_connection()):
+def insertTransaction(transaction: dict):
     is_other = False
     try:
         logger.info("Inserting transaction")
-        if not conn:
-            conn = database.get_connection()
-            is_other = True
+        conn = database.get_connection()
         cursor = conn.cursor()
         query = """
             INSERT INTO accounting_entries 
@@ -96,14 +78,17 @@ def insertTransaction(transaction: dict, conn = database.get_connection()):
             transaction["received_for_booking_id"],
             transaction["payment_type"]
         ))
-        if is_other:
-            conn.commit()
+        conn.commit()
         transaction["acc_entry_id"] = cursor.lastrowid
         return transaction
+    except Exception as e:
+        conn.rollback()
+        logger.error (f"Exception in data.insertTransaction: {e}")
+        raise e
     finally:
         if cursor:
             cursor.close()
-        if conn and is_other:
+        if conn:
             conn.close()
 
 def queryTransactionsSince(transactionDate: date):

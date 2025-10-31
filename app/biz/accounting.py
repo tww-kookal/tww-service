@@ -106,8 +106,25 @@ def addCommissionPayout(commission_payout: dict):
         if not selected_bookings or selected_bookings == []:
             logger.error("No bookings selected for commission payout")
             raise Exception("No bookings selected for commission payout")
-        return data.createCommissionPayout(commission_payout)
+        logger.info(f"Commission payout inserting to all the bookings {selected_bookings}")
+        data.createCommissionPayout(commission_payout)
+        logger.info(f"Commission payout added to bookings, now updating the transaction table")
+        data.insertTransaction({
+            "acc_category_id": commission_payout["acc_category_id"],
+            "acc_entry_amount": commission_payout["acc_entry_amount"],
+            "acc_entry_date": commission_payout["acc_entry_date"],
+            "acc_entry_description": commission_payout["acc_entry_description"],
+            "created_by": commission_payout["created_by"],
+            "txn_by": commission_payout["txn_by"],
+            "paid_by": commission_payout["paid_by"],
+            "received_by": commission_payout["received_by"],
+            "payment_type": commission_payout["payment_type"],
+            "received_for_booking_id": 0,
+        })
+        logger.info(f"Commission payout update and insert completed")
+        return
     except Exception as e:
         logger.error (f"Exception in helper.addCommissionPayout: {e}")
         traceback.print_exc()
         raise e
+    
