@@ -177,3 +177,72 @@ def test_assign_roles_to_user_user_not_found(mock_db_connection):
     mock_conn.return_value.rollback.assert_called_once()
     mock_cursor.close.assert_called_once()
     mock_conn.return_value.close.assert_called_once()
+
+def test_persist_user_error(mock_db_connection):
+    mock_conn, mock_cursor = mock_db_connection
+    user = {
+        'username': 'test', 'hashed_password': 'password', 'first_name': 'Test', 'last_name': 'User',
+        'email': 'test@example.com', 'phone': '1112223333', 'booking_commission': 5, 'user_type': 'AGENT'
+    }
+    mock_cursor.execute.side_effect = Exception("DB Error")
+    with patch('app.data.usersDB.logger') as mock_logger:
+        with pytest.raises(Exception):
+            usersDB.persistUserDB(user)
+        mock_logger.error.assert_called()
+    mock_conn.return_value.rollback.assert_called_once()
+    mock_cursor.close.assert_called_once()
+    mock_conn.return_value.close.assert_called_once()
+
+def test_assign_roles_to_user_db_error(mock_db_connection):
+    mock_conn, mock_cursor = mock_db_connection
+    with patch('app.data.usersDB.queryUserDB', return_value={'user_id': 1, 'username': 'john'}):
+        mock_cursor.execute.side_effect = Exception("DB Error")
+        with patch('app.data.usersDB.logger') as mock_logger:
+            with pytest.raises(Exception):
+                usersDB.assignRolesToUserDB('john', ['admin'])
+            mock_logger.error.assert_called()
+    mock_conn.return_value.rollback.assert_called_once()
+    mock_cursor.close.assert_called_once()
+    mock_conn.return_value.close.assert_called_once()
+
+def test_query_all_booking_sources(mock_db_connection):
+    mock_conn, mock_cursor = mock_db_connection
+    mock_cursor.fetchall.return_value = [{'user_type': 'BOOKING-AGENT'}, {'user_type': 'EMPLOYEE'}]
+    result = usersDB.queryAllBookingSourcesDB()
+    assert len(result) == 2
+    mock_cursor.execute.assert_called_once()
+    mock_cursor.close.assert_called_once()
+    mock_conn.return_value.close.assert_called_once()
+
+def test_query_all_employees(mock_db_connection):
+    mock_conn, mock_cursor = mock_db_connection
+    mock_cursor.fetchall.return_value = [{'user_type': 'EMPLOYEE'}, {'user_type': 'CXO'}]
+    result = usersDB.queryAllEmployeesDB()
+    assert len(result) == 2
+    mock_cursor.execute.assert_called_once()
+    mock_cursor.close.assert_called_once()
+    mock_conn.return_value.close.assert_called_once()
+
+def test_query_all_vendors(mock_db_connection):
+    mock_conn, mock_cursor = mock_db_connection
+    mock_cursor.fetchall.return_value = [{'user_type': 'VENDOR'}]
+    result = usersDB.queryAllVendorsDB()
+    assert len(result) == 1
+    mock_cursor.execute.assert_called_once()
+    mock_cursor.close.assert_called_once()
+    mock_conn.return_value.close.assert_called_once()
+
+def test_query_all_non_customers(mock_db_connection):
+    mock_conn, mock_cursor = mock_db_connection
+    mock_cursor.fetchall.return_value = [{'user_type': 'AGENT'}, {'user_type': 'EMPLOYEE'}]
+    result = usersDB.queryAllNonCustomersDB()
+    assert len(result) == 2
+    mock_cursor.execute.assert_called_once()
+    mock_cursor.close.assert_called_once()
+    mock_conn.return_value.close.assert_called_once()
+
+def test_convert_tuple_to_list():
+    assert usersDB.convertTupleToList([('admin',), ('agent',)]) == ['admin', 'agent']
+    assert usersDB.convertTupleToList([]) == []
+
+    

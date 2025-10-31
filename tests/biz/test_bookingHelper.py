@@ -82,6 +82,25 @@ def test_bookRoom_update_success(mock_room, mock_customer, mock_update, mock_sel
     assert result['customer_phone'] == '456'
     assert result['room_name'] == 'Suite'
 
+@patch('app.biz.bookingHelper.bookingDB.search_bookings')
+def test_search_bookings_success(mock_search):
+    mock_search.return_value = [{'booking_id': 1, 'customer_name': 'Test Customer'}]
+    
+    search_criteria = {'customer_name': 'Test'}
+    result = bookingHelper.search_bookings(search_criteria)
+    
+    assert len(result) == 1
+    assert result[0]['customer_name'] == 'Test Customer'
+    mock_search.assert_called_once_with(search_criteria)
+
+@patch('app.biz.bookingHelper.bookingDB.search_bookings', side_effect=Exception("DB Error"))
+def test_search_bookings_exception(mock_search):
+    search_criteria = {'customer_name': 'Test'}
+    result = bookingHelper.search_bookings(search_criteria)
+    
+    assert result == []
+    mock_search.assert_called_once_with(search_criteria)
+
 # listBookingsSince
 @patch('app.biz.bookingHelper.bookingDB.listBookingsSinceDB')
 def test_listBookingsSince_success(mock_list):

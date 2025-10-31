@@ -146,3 +146,63 @@ def test_getFullNameOfUserByID_not_found(mock_get):
 def test_getRolesForUser(mock_query):
     mock_query.return_value = ["admin", "user"]
     assert usersHelper.getRolesForUser("test") == ["admin", "user"]
+
+@patch('app.biz.usersHelper.userDB.queryRolesForUserDB')
+def test_getRolesForUser(mock_query):
+    mock_query.return_value = ["admin", "user"]
+    assert usersHelper.getRolesForUser("test") == ["admin", "user"]
+
+@patch('app.biz.usersHelper.userDB.queryUserDB')
+@patch('app.biz.usersHelper.userDB.persistUserDB')
+@patch('app.biz.usersHelper.utils.hash_password')
+def test_createUser_exception(mock_hash, mock_persist, mock_query):
+    mock_query.return_value = None
+    mock_persist.side_effect = Exception("DB error")
+    mock_hash.return_value = "hashed"
+    user = {"username": "new", "password": "plain"}
+    with pytest.raises(Exception, match="DB error"):
+        usersHelper.createUser(user)
+
+@patch('app.biz.usersHelper.userDB.queryAllBookingSourcesDB')
+def test_getBookingSources_success(mock_query):
+    mock_query.return_value = [{"id": 1, "name": "source1"}]
+    assert usersHelper.getBookingSources() == [{"id": 1, "name": "source1"}]
+
+@patch('app.biz.usersHelper.userDB.queryAllBookingSourcesDB')
+def test_getBookingSources_exception(mock_query):
+    mock_query.side_effect = Exception("DB error")
+    with pytest.raises(Exception, match="DB error"):
+        usersHelper.getBookingSources()
+
+@patch('app.biz.usersHelper.userDB.queryAllEmployeesDB')
+def test_getEmployees_success(mock_query):
+    mock_query.return_value = [{"id": 1, "name": "emp1"}]
+    assert usersHelper.getEmployees() == [{"id": 1, "name": "emp1"}]
+
+@patch('app.biz.usersHelper.userDB.queryAllEmployeesDB')
+def test_getEmployees_exception(mock_query):
+    mock_query.side_effect = Exception("DB error")
+    with pytest.raises(Exception, match="DB error"):
+        usersHelper.getEmployees()
+
+@patch('app.biz.usersHelper.userDB.queryAllVendorsDB')
+def test_getVendors_success(mock_query):
+    mock_query.return_value = [{"id": 1, "name": "vendor1"}]
+    assert usersHelper.getVendors() == [{"id": 1, "name": "vendor1"}]
+
+@patch('app.biz.usersHelper.userDB.queryAllVendorsDB')
+def test_getVendors_exception(mock_query):
+    mock_query.side_effect = Exception("DB error")
+    with pytest.raises(Exception, match="DB error"):
+        usersHelper.getVendors()
+
+@patch('app.biz.usersHelper.userDB.queryAllNonCustomersDB')
+def test_getNonCustomers_success(mock_query):
+    mock_query.return_value = [{"id": 1, "name": "noncust1"}]
+    assert usersHelper.getNonCustomers() == [{"id": 1, "name": "noncust1"}]
+
+@patch('app.biz.usersHelper.userDB.queryAllNonCustomersDB')
+def test_getNonCustomers_exception(mock_query):
+    mock_query.side_effect = Exception("DB error")
+    with pytest.raises(Exception, match="DB error"):
+        usersHelper.getNonCustomers()    

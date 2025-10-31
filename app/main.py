@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
-from .routers import login, rooms, users, roles, reports, customers, booking, admin, payments, accounting, gateway
+from .routers import login, rooms, users, roles, reports, customers, booking, admin, payments, accounting
 from prometheus_fastapi_instrumentator import Instrumentator
 from fastapi.middleware.cors import CORSMiddleware
 import logging

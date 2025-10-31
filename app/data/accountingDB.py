@@ -6,6 +6,8 @@ import traceback
 logger = logging.getLogger("tww.service.accountingdb")
 
 def listAllAccountingCategories():
+    conn = None
+    cursor = None
     try:
         conn = database.get_connection()
         cursor = conn.cursor(dictionary=True)
@@ -23,6 +25,8 @@ def listAllAccountingCategories():
             conn.close()
 
 def createCommissionPayout(commission_payout: dict):
+    conn = None
+    cursor = None
     try:
         conn = database.get_connection()
         selected_bookings = commission_payout["selected_bookings"] if "selected_bookings" in commission_payout else []
@@ -49,7 +53,8 @@ def createCommissionPayout(commission_payout: dict):
             cursor.close()
 
 def insertTransaction(transaction: dict):
-    is_other = False
+    conn = None
+    cursor = None
     try:
         logger.info("Inserting transaction")
         conn = database.get_connection()
@@ -92,6 +97,8 @@ def insertTransaction(transaction: dict):
             conn.close()
 
 def queryTransactionsSince(transactionDate: date):
+    conn = None
+    cursor = None
     try:
         conn = database.get_connection()
         cursor = conn.cursor(dictionary=True)
@@ -125,6 +132,8 @@ def queryTransactionsSince(transactionDate: date):
             conn.close()
 
 def queryPaymentsForBooking(bookingId: int):
+    conn = None
+    cursor = None
     try:
         logger.debug(f"Inside queryPaymentsForBooking {bookingId}")
         conn = database.get_connection()
@@ -169,6 +178,7 @@ def queryPaymentsForBooking(bookingId: int):
 
 def updateTransaction(transaction: dict):
     conn = database.get_connection()
+    cursor = None
     try:
         cursor = conn.cursor()
         query = """
@@ -206,6 +216,7 @@ def updateTransaction(transaction: dict):
 
 def deleteTransaction(transactionId ):
     conn = database.get_connection()
+    cursor = None
     try:
         cursor = conn.cursor()
         query = """
@@ -230,6 +241,8 @@ def deleteTransaction(transactionId ):
 
 
 def searchTransactions(search_criteria: dict):
+    conn = None
+    cursor = None
     try:
         conn = database.get_connection()
         cursor = conn.cursor(dictionary=True)

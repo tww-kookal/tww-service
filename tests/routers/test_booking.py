@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from unittest.mock import patch
 from app.routers import booking
-from app.biz import bookingHelper
+from app.biz import bookingHelper, BizExceptions as exceptions
 from datetime import date, timedelta
 from fastapi.routing import APIRoute
 
@@ -171,3 +171,81 @@ def test_guests_for_day_success(test_client):
         response = test_client.get(f"/api/v1/booking/guestsForDay/{for_date}")
         assert response.status_code == 200
         assert response.json() == {"guest_count": 5}
+
+def test_guests_for_day_success(test_client):
+    for_date = date.today().isoformat()
+    with patch.object(bookingHelper, "guestsForDay") as mock_guests:
+        mock_guests.return_value = {"guest_count": 5}
+        response = test_client.get(f"/api/v1/booking/guestsForDay/{for_date}")
+        assert response.status_code == 200
+        assert response.json() == {"guest_count": 5}
+
+
+def test_update_booking_user_not_available(test_client, sample_booking_data):
+    with patch.object(bookingHelper, "bookRoom", side_effect=exceptions.UserNotAvailableException("Booking user not available")):
+        response = test_client.post("/api/v1/booking/updateBooking", json=sample_booking_data)
+        assert response.status_code == 400
+        assert response.json()["detail"] == "Booking User Not Available"
+
+def test_update_booking_customer_not_available(test_client, sample_booking_data):
+    with patch.object(bookingHelper, "bookRoom", side_effect=exceptions.CustomerNotAvailableException("Customer not available")):
+        response = test_client.post("/api/v1/booking/updateBooking", json=sample_booking_data)
+        assert response.status_code == 400
+        assert response.json()["detail"] == "Customer Not Available"
+
+def test_update_booking_generic_exception(test_client, sample_booking_data):
+    with patch.object(bookingHelper, "bookRoom", side_effect=Exception("Generic error")):
+        response = test_client.post("/api/v1/booking/updateBooking", json=sample_booking_data)
+        assert response.status_code == 500
+        assert response.json()["detail"] == "Not able to book the room"
+
+def test_create_booking_user_not_available(test_client, sample_booking_data):
+    with patch.object(bookingHelper, "bookRoom", side_effect=exceptions.UserNotAvailableException("Booking user not available")):
+        response = test_client.post("/api/v1/booking/createBooking", json=sample_booking_data)
+        assert response.status_code == 400
+        assert response.json()["detail"] == "Booking User Not Available"
+
+def test_create_booking_customer_not_available(test_client, sample_booking_data):
+    with patch.object(bookingHelper, "bookRoom", side_effect=exceptions.CustomerNotAvailableException("Customer not available")):
+        response = test_client.post("/api/v1/booking/createBooking", json=sample_booking_data)
+        assert response.status_code == 400
+        assert response.json()["detail"] == "Customer Not Available"
+
+def test_create_booking_generic_exception(test_client, sample_booking_data):
+    with patch.object(bookingHelper, "bookRoom", side_effect=Exception("Generic error")):
+        response = test_client.post("/api/v1/booking/createBooking", json=sample_booking_data)
+        assert response.status_code == 500
+        assert response.json()["detail"] == "Not able to book the room"
+
+def test_list_all_bookings_exception(test_client):
+    with patch.object(bookingHelper, "listBookingsSince", side_effect=Exception("DB error")):
+        response = test_client.get("/api/v1/booking/listAllBookings")
+        assert response.status_code == 500
+        assert "Not able to get all the bookings" in response.json()["detail"]
+
+def test_list_bookings_by_check_in_date_exception(test_client):
+    check_in_date = date.today().isoformat()
+    with patch.object(bookingHelper, "listBookingsSince", side_effect=Exception("DB error")):
+        response = test_client.get(f"/api/v1/booking/listBookingsByCheckInDate/{check_in_date}")
+        assert response.status_code == 500
+        assert "Not able to get all the bookings" in response.json()["detail"]
+
+def test_guests_for_day_exception(test_client):
+    for_date = date.today().isoformat()
+    with patch.object(bookingHelper, "guestsForDay", side_effect=Exception("DB error")):
+        response = test_client.get(f"/api/v1/booking/guestsForDay/{for_date}")
+        assert response.status_code == 500
+        assert "Not able to get the number of guests for the day" in response.json()["detail"]
+
+def test_get_booking_by_id_generic_exception(test_client):
+    with patch.object(bookingHelper, "getBookingByID", side_effect=Exception("DB error")):
+        response = test_client.get("/api/v1/booking/byID/1")
+        assert response.status_code == 500
+        assert "Not able to get all the bookings" in response.json()["detail"]
+
+def test_search_bookings_exception(test_client):
+    search_criteria = {"guest_name": "Test"}
+    with patch.object(bookingHelper, "search_bookings", side_effect=Exception("DB error")):
+        response = test_client.post("/api/v1/booking/search", json=search_criteria)
+        assert response.status_code == 500
+        assert "Failed to search bookings" in response.json()["detail"]        

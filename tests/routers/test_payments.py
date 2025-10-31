@@ -40,6 +40,10 @@ def test_client(test_client_factory):
     return test_client_factory(['manager', 'owner', 'admin', 'agent'])
 
 @pytest.fixture
+def unauthorized_test_client(test_client_factory):
+    return test_client_factory([])
+
+@pytest.fixture
 def sample_payment():
     """Provides a sample payment payload for tests."""
     return {
@@ -69,6 +73,22 @@ def test_add_payment_booking_not_found(test_client, sample_payment, monkeypatch)
     assert response.status_code == 400
     assert response.json()["detail"] == "Booking Not Found"
 
+def test_add_payment_payment_exceeded(test_client, sample_payment, monkeypatch):
+    monkeypatch.setattr(helper, "addPayment", lambda payment_dict, is_update: (_ for _ in ()).throw(exceptions.PaymentExceededException("Payment amount exceeds the remaining balance")))
+    
+    response = test_client.post("/api/v1/payment/add", json=sample_payment)
+    
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Payment Exceeded"
+
+def test_add_payment_generic_exception(test_client, sample_payment, monkeypatch):
+    monkeypatch.setattr(helper, "addPayment", lambda payment_dict, is_update: (_ for _ in ()).throw(Exception("Some generic error")))
+    
+    response = test_client.post("/api/v1/payment/add", json=sample_payment)
+    
+    assert response.status_code == 500
+    assert "Not able to book the room" in response.json()["detail"]
+
 def test_update_payment_success(test_client, sample_payment, monkeypatch):
     payment_with_id = {**sample_payment, "booking_payments_id": 1}
     monkeypatch.setattr(helper, "addPayment", lambda payment_dict, is_update: payment_dict)
@@ -79,6 +99,15 @@ def test_update_payment_success(test_client, sample_payment, monkeypatch):
     assert response.json()["status"] == 200
     assert response.json()["message"] == "Payment updated successfully"
 
+def test_update_payment_generic_exception(test_client, sample_payment, monkeypatch):
+    payment_with_id = {**sample_payment, "booking_payments_id": 1}
+    monkeypatch.setattr(helper, "addPayment", lambda payment_dict, is_update: (_ for _ in ()).throw(Exception("Some generic error")))
+    
+    response = test_client.post("/api/v1/payment/update", json=payment_with_id)
+    
+    assert response.status_code == 500
+    assert "Not able to update the payment" in response.json()["detail"]
+
 def test_delete_payment_success(test_client, monkeypatch):
     monkeypatch.setattr(helper, "deletePayment", lambda payment_id: True)
     
@@ -87,6 +116,14 @@ def test_delete_payment_success(test_client, monkeypatch):
     assert response.status_code == 200
     assert response.json()["status"] == 200
     assert response.json()["message"] == "Payment deleted successfully"
+
+def test_delete_payment_generic_exception(test_client, monkeypatch):
+    monkeypatch.setattr(helper, "deletePayment", lambda payment_id: (_ for _ in ()).throw(Exception("Some generic error")))
+    
+    response = test_client.post("/api/v1/payment/deleteById/1")
+    
+    assert response.status_code == 500
+    assert "Not able to delete the payment" in response.json()["detail"]
 
 def test_get_payments_for_booking_success(test_client, monkeypatch):
     monkeypatch.setattr(helper, "getPaymentsForBooking", lambda booking_id: [{"booking_payments_id": 1, "payment_amount": 100.0}])
@@ -97,3 +134,11 @@ def test_get_payments_for_booking_success(test_client, monkeypatch):
     assert response.json()["status"] == 200
     assert len(response.json()["payments"]) > 0
     assert response.json()["booking_id"] == 1
+
+def test_get_payments_for_booking_generic_exception(test_client, monkeypatch):
+    monkeypatch.setattr(helper, "getPaymentsForBooking", lambda booking_id: (_ for _ in ()).throw(Exception("Some generic error")))
+    
+    response = test_client.get("/api/v1/payment/forBookingID/1")
+    
+    assert response.status_code == 500
+    assert "Not able to get the payments" in response.json()["detail"]
