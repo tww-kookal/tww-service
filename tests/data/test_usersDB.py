@@ -19,10 +19,14 @@ def test_query_user_found(mock_db_connection):
         'email': 'john@example.com',
         'phone': '1234567890',
         'booking_commission': 10,
+        'user_type': 'AGENT',
         'password': 'hashed'
     }
     result = usersDB.queryUserDB('john')
-    mock_cursor.execute.assert_called_once_with("SELECT user_id, username, first_name, last_name, email, phone, booking_commission, password FROM users WHERE username=%s", ('john',))
+    mock_cursor.execute.assert_called_once_with(
+        "\n                SELECT user_id, username, first_name, last_name, email, phone, booking_commission, user_type, \n                password FROM users WHERE username=%s\n        ",
+        ('john',)
+    )
     assert result['username'] == 'john'
     mock_cursor.close.assert_called_once()
     mock_conn.return_value.close.assert_called_once()
@@ -44,10 +48,11 @@ def test_query_user_by_id_found(mock_db_connection):
         'last_name': 'Smith',
         'email': 'jane@example.com',
         'phone': '9876543210',
-        'booking_commission': 15
+        'booking_commission': 15,
+        'user_type': 'CUSTOMER'
     }
     result = usersDB.queryUserByIdDB(2)
-    mock_cursor.execute.assert_called_once_with("SELECT user_id, username, first_name, last_name, email, phone, booking_commission FROM users WHERE user_id = %s", (2,))
+    mock_cursor.execute.assert_called_once_with("SELECT user_id, username, first_name, last_name, email, phone, booking_commission, user_type FROM users WHERE user_id = %s", (2,))
     assert result['username'] == 'jane'
     mock_cursor.close.assert_called_once()
     mock_conn.return_value.close.assert_called_once()
@@ -70,7 +75,8 @@ def test_persist_user(mock_db_connection):
         'last_name': 'Wonder',
         'email': 'alice@example.com',
         'phone': '5551234567',
-        'booking_commission': 20
+        'booking_commission': 20,
+        'user_type': 'AGENT'
     }
     result = usersDB.persistUserDB(user)
     mock_cursor.execute.assert_called_once()
@@ -88,7 +94,8 @@ def test_update_user_detail_success(mock_db_connection):
         'last_name': 'Doe',
         'email': 'john@example.com',
         'phone': '1234567890',
-        'booking_commission': 10
+        'booking_commission': 10,
+        'user_type': 'CUSTOMER'
     }
     result = usersDB.updateUserDetailDB(user)
     mock_cursor.execute.assert_called_once()
@@ -138,11 +145,11 @@ def test_query_roles_for_user_not_found(mock_db_connection):
 def test_query_all_users(mock_db_connection):
     mock_conn, mock_cursor = mock_db_connection
     mock_cursor.fetchall.return_value = [
-        {'user_id': 1, 'username': 'john', 'first_name': 'John', 'last_name': 'Doe', 'email': 'john@example.com', 'phone': '1234567890', 'booking_commission': 10},
-        {'user_id': 2, 'username': 'jane', 'first_name': 'Jane', 'last_name': 'Smith', 'email': 'jane@example.com', 'phone': '9876543210', 'booking_commission': 15}
+        {'user_id': 1, 'username': 'john', 'first_name': 'John', 'last_name': 'Doe', 'email': 'john@example.com', 'phone': '1234567890', 'booking_commission': 10, 'user_type': 'AGENT'},
+        {'user_id': 2, 'username': 'jane', 'first_name': 'Jane', 'last_name': 'Smith', 'email': 'jane@example.com', 'phone': '9876543210', 'booking_commission': 15, 'user_type': 'CUSTOMER'}
     ]
     result = usersDB.queryAllUsersDB()
-    mock_cursor.execute.assert_called_once_with("SELECT user_id, username, first_name, last_name, email, phone, booking_commission FROM users ORDER BY first_name DESC")
+    mock_cursor.execute.assert_called_once_with("SELECT user_id, username, first_name, last_name, email, phone, booking_commission, user_type FROM users ORDER BY first_name DESC")
     assert isinstance(result, list)
     assert result[0]['username'] == 'john'
     mock_cursor.close.assert_called_once()

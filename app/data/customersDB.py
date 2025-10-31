@@ -76,8 +76,10 @@ def extract_names(full_name: str):
     return first_name,last_name
 
 def createCustomerDB(customer):    
-    conn = database.get_connection()
+    conn = None
+    cursor = None
     try:
+        conn = database.get_connection()
         # Check if customer_name is empty
         if not customer["user_type"]:
             logger.error(f"User Type is empty")
@@ -132,8 +134,10 @@ def createCustomerDB(customer):
 
 
 def updateCustomerDB(customer):
-    conn = database.get_connection()
+    conn = None
+    cursor = None
     try:
+        conn = database.get_connection()
         # Check if customer_name is empty
         if not customer["user_type"]:
             logger.error(f"User Type is empty")

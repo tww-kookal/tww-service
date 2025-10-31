@@ -89,7 +89,7 @@ def add_payment(request: Request, payment: PaymentAddModel, authorized_user: dic
 @router.get("/forBookingID/{booking_id}", description="Gets payments for a booking ID")
 @limiter.limit("10/second")
 def getPaymentsForBooking(request: Request,
-    booking_id: int = Path(description="Booking ID", example = 1), 
+    booking_id: int = Path(description="Booking ID", examples = [1]), 
     authorized_user: dict = Depends(auth.authorizedUser(["admin", 'manager', 'owner']))):
     try:
         payments = helper.getPaymentsForBooking(booking_id)

@@ -49,9 +49,9 @@ class BookingModel(BaseModel):
 @limiter.limit("10/second")
 async def check_room_availability(
     request: Request,
-    check_in_date: date = Query(..., description="Check-in date in YYYY-MM-DD format", example = "2025-09-27"), 
-    check_out_date: date = Query(..., description="Check-out date in YYYY-MM-DD format always greater than the check in date", example = "2025-09-29"), 
-    number_of_people: int = Query(..., description="Number of people to be greater than zero", example = 2),    
+    check_in_date: date = Query(..., description="Check-in date in YYYY-MM-DD format", examples = ["2025-09-27"]), 
+    check_out_date: date = Query(..., description="Check-out date in YYYY-MM-DD format always greater than the check in date", examples = ["2025-09-29"]), 
+    number_of_people: int = Query(..., description="Number of people to be greater than zero", examples = [2]),    
     authorized_user: dict = Depends(auth.authorizedUser(["manager", 'agent', 'owner'])) ):
 
     available_rooms = helper.getAvailableRooms(check_in_date, check_out_date, number_of_people, None)
@@ -117,7 +117,7 @@ async def book_room(request: Request, booking: BookingModel,authorized_user: dic
 @limiter.limit("5/second")
 async def listBookingsByCheckInDate(
     request: Request,
-    checkInDate: date = Path(description="Starting date in YYYY-MM-DD format", example = "2025-09-27"), 
+    checkInDate: date = Path(description="Starting date in YYYY-MM-DD format", examples = ["2025-09-27"]), 
     authorized_user: dict = Depends(auth.authorizedUser(["admin", 'manager', 'owner']))):
     try:
         bookings = helper.listBookingsSince(checkInDate, is_check_in_date=True)
@@ -150,7 +150,7 @@ async def listAllBookings(
 @limiter.limit("10/second")
 async def listAllBookings(
     request: Request,
-    startingDate: date = Path(description="Starting date in YYYY-MM-DD format", example = "2025-09-27"), 
+    startingDate: date = Path(description="Starting date in YYYY-MM-DD format", examples = ["2025-09-27"]), 
     authorized_user: dict = Depends(auth.authorizedUser(["admin", 'manager', 'owner']))):
     try:
         bookings = helper.listBookingsSince(startingDate)
@@ -177,7 +177,7 @@ async def noOfGuest(request: Request, forDate: date, authorized_user: dict = Dep
 @limiter.limit("10/second")
 async def getBookingByID(
     request: Request,
-    booking_id: int = Path(description="Booking ID", example = 1), 
+    booking_id: int = Path(description="Booking ID", examples = [1]), 
     authorized_user: dict = Depends(auth.authorizedUser(["admin", 'manager', 'owner']))):
     try:
         booking = helper.getBookingByID(booking_id)

@@ -34,19 +34,21 @@ def test_none_if_zero(value, expected):
 
 # bookRoom (new booking)
 @patch('app.biz.bookingHelper.userHelper.getUserByUserName')
+@patch('app.biz.bookingHelper.userHelper.getFullNameOfUserByID')
 @patch('app.biz.bookingHelper.getSelectedRoom')
 @patch('app.biz.bookingHelper.bookingDB.persistBookingDB')
 @patch('app.biz.bookingHelper.getCustomerByID')
 @patch('app.biz.bookingHelper.roomHelper.getRoomById')
-def test_bookRoom_success(mock_room, mock_customer, mock_persist, mock_selected, mock_user):
+def test_bookRoom_success(mock_room, mock_customer, mock_persist, mock_selected, mock_full_name, mock_user):
     mock_user.return_value = {'user_id': 10}
+    mock_full_name.return_value = 'Karthik Ravikumar'
     mock_selected.return_value = {'room_id': 1}
-    mock_persist.return_value = {'booked_by_id': 10, 'customer_id': 20, 'room_id': 1}
+    mock_persist.return_value = {'booked_by_id': 10, 'customer_id': 1, 'room_id': 1}
     mock_customer.return_value = {'customer_name': 'Alice', 'phone': '123'}
     mock_room.return_value = {'room_name': 'Deluxe'}
-    booking = {'booked_by': 'user', 'source_of_booking_id': 0, 'check_in': '2023-01-01', 'check_out': '2023-01-02', 'number_of_people': 2, 'room_id': 1}
+    booking = {'booked_by': 'user', 'source_of_booking_id': 0, 'check_in': '2023-01-01', 'check_out': '2023-01-02', 'number_of_people': 2, 'room_id': 1, 'customer_id': 1}
     result = bookingHelper.bookRoom(booking)
-    assert result['booked_by'] == 'userHelper.getFullNameOfUserByID'
+    assert result['booked_by'] == 'Karthik Ravikumar'
     assert result['customer_name'] == 'Alice'
     assert result['customer_phone'] == '123'
     assert result['room_name'] == 'Deluxe'
@@ -74,7 +76,7 @@ def test_bookRoom_update_success(mock_room, mock_customer, mock_update, mock_sel
     mock_update.return_value = {'booked_by_id': 10, 'customer_id': 20, 'room_id': 1}
     mock_customer.return_value = {'customer_name': 'Bob', 'phone': '456'}
     mock_room.return_value = {'room_name': 'Suite'}
-    booking = {'booked_by': 'user', 'source_of_booking_id': 0, 'check_in': '2023-01-01', 'check_out': '2023-01-02', 'number_of_people': 2, 'room_id': 1, 'booking_id': 1}
+    booking = {'booked_by': 'user', 'source_of_booking_id': 0, 'check_in': '2023-01-01', 'check_out': '2023-01-02', 'number_of_people': 2, 'room_id': 1, 'booking_id': 1, 'customer_id': 20, 'status': 'CONFIRMED'}
     result = bookingHelper.bookRoom(booking, is_update=True)
     assert result['customer_name'] == 'Bob'
     assert result['customer_phone'] == '456'
@@ -94,7 +96,7 @@ def test_listBookingsSince_exception(mock_list):
 # guestsForDay
 @patch('app.biz.bookingHelper.bookingDB.guestsForDay')
 def test_guestsForDay_success(mock_guests):
-    mock_guests.return_value = [[5]]
+    mock_guests.return_value = [5]
     assert bookingHelper.guestsForDay(date(2023,1,1)) == 5
 
 @patch('app.biz.bookingHelper.bookingDB.guestsForDay')
