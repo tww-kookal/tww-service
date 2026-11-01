@@ -1,4 +1,5 @@
 import os
+import logging
 from dotenv import load_dotenv
 from pathlib import Path
 
@@ -8,7 +9,6 @@ from pathlib import Path
 env_file = os.getenv("ENV_FILE", ".env.dev")
 # Explicit absolute path to the .env file
 env_path = Path(__file__).resolve().parent / env_file
-print(f"Loading environment file from: {env_path}")
 load_dotenv(dotenv_path=env_path)
 
 class Settings:
@@ -16,14 +16,12 @@ class Settings:
     MYSQL_USER = os.getenv("MYSQL_USER")
     MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD")
     MYSQL_DATABASE = os.getenv("MYSQL_DATABASE")
+    MYSQL_PORT = os.getenv("MYSQL_PORT")
     SECRET_KEY = os.getenv("SECRET_KEY")
     ALGORITHM = os.getenv("ALGORITHM")
+    LOG_LEVEL = int(os.getenv("LOG_LEVEL", 20)) 
     ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30))
+    GOOGLE_APP_CLIENT_ID = os.getenv("GOOGLE_APP_CLIENT_ID")
 
 settings = Settings()
-print(f"Using environment file: {env_file}")
-print(f"Database Host: {settings.MYSQL_HOST}")
-print(f"Database User: {settings.MYSQL_USER}")
-print(f"Database Password: {settings.MYSQL_PASSWORD}")
-print(f"Database Name: {settings.MYSQL_DATABASE}")
-
+print(f"Loading environment file from: {env_path} {settings.MYSQL_DATABASE}")

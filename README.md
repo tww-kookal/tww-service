@@ -1,24 +1,234 @@
-# FastAPI Hotel Booking API
+# TWW Service
+## Description
+TWW Service is a backend service for a hotel booking system. It provides endpoints for admin management, user authentication, room booking, payment processing, and reporting. It can also connect to Google Drive for uploading the identity documents of the guests who stay in the hotel.
 
-This project is a modular FastAPI application for hotel booking, including:
-- OAuth2 login
-- Room availability
-- Booking system
-- User & Role management
-- Reporting
+## Features
+- **Admin Management:** Create, list, and manage hotel administrators with role-based access control.
+- **User Authentication:** Secure login and Google OAuth support for guests and staff.
+- **Room Booking:** View available rooms, create bookings, and manage reservations.
+- **Payment Processing:** Create and list payments, handle errors, and manage transactions.
+- **Reporting:** Metrics and reporting endpoints, including Prometheus integration for monitoring.
+- **Google Drive Integration:** Upload and store guest identity documents securely.
+- **CORS and Security:** Configurable CORS policies to restrict API access to trusted frontend domains.
+- **Database Connection Pooling:** Efficient MySQL connection management for performance and reliability.
 
-## Deployment on Railway
-1. Create a new project in Railway.
-2. Add a MySQL service.
-3. Import `sql/hotel_schema.sql` into your MySQL instance.
-4. Add environment variables:
-   - `DB_HOST`
-   - `DB_USER`
-   - `DB_PASSWORD`
-   - `DB_NAME`
-   - `SECRET_KEY`
-5. Deploy from this GitHub repo.
+## Architecture
+- **FastAPI Application:** The main entry point (`main.py`) initializes the app, configures routers, middleware, and logging.
+- **Routers:** Modular API endpoints for admin, booking, customers, login, payments, roles, rooms, users, and reports.
+- **Helpers:** Business logic modules for users, booking, payments, and admin operations.
+- **Data Layer:** Database modules for CRUD operations, connection pooling, and transaction management.
+- **Configuration:** Environment-based settings for database, logging, allowed origins, and integrations.
+- **Testing:** Comprehensive test suites for all modules to ensure reliability and correctness.
 
-## Default Login
-- username: admin
-- password: Admin@123
+## Integrations
+- **Google Drive:** Secure upload of guest identity documents.
+- **Google Auth:** Secure user authentication with Google OAuth.
+- **Prometheus:** Metrics endpoint for real-time monitoring.
+
+## Deployment
+- **Local:** Setup with Python virtual environments, dependency management, and `.env` configuration.
+- **Railway.app:** Cloud deployment with environment variable support and automated build/run processes.
+
+## Use Cases
+- Hotel staff can manage bookings, payments, and guest records efficiently.
+- Hotel managers can monitor system health and usage via integrated metrics and reporting.
+
+## Extensibility
+- Modular router and helper structure allows for easy addition of new features and endpoints.
+- Environment-driven configuration supports scaling and integration with other services.
+
+---
+TWW Service is designed for reliability, security, and ease of use, making it an ideal backend for modern hotel management systems.
+
+## Project Structure
+```
+app/
+  ├── main.py           # FastAPI app entry point
+  ├── routers/
+  │     ├── admin.py
+  │     ├── booking.py
+  │     ├── customers.py
+  │     ├── login.py
+  │     ├── payments.py
+  │     ├── roles.py
+  │     ├── rooms.py
+  │     ├── users.py
+  │     └── reports.py
+  ├── data/
+  │     ├── database.py
+  │     └── ...
+  ├── helpers/
+  │     ├── users.py
+  │     ├── booking.py
+  │     ├── payments.py
+  │     └── admin.py
+  ├── config.py          # Configuration loader
+  └── ...
+tests/
+  ├── test_main.py
+  ├── data/
+  │     └── test_database.py
+  └── ...
+```
+  
+## Routers Documentation
+
+### 1. Admin Router (`/api/admin`)
+- **Endpoints:**
+  - `GET /api/admin/list` - List all admins
+    - **Params:** None
+    - **Returns:** JSON array of admin objects
+  - `POST /api/admin/create` - Create new admin
+    - **Params:** JSON body (admin details)
+    - **Returns:** Created admin object or error
+
+### 2. Booking Router (`/api/booking`)
+- **Endpoints:**
+  - `GET /api/booking/list` - List bookings
+    - **Params:** Optional query params (date, user)
+    - **Returns:** JSON array of bookings
+  - `POST /api/booking/create` - Create booking
+    - **Params:** JSON body (booking details)
+    - **Returns:** Booking object or error
+
+### 3. Customers Router (`/api/customers`)
+- **Endpoints:**
+  - `GET /api/customers/list` - List customers
+    - **Params:** None
+    - **Returns:** JSON array of customers
+
+### 4. Login Router (`/api/login`)
+- **Endpoints:**
+  - `POST /api/login` - Authenticate user
+    - **Params:** JSON body (username, password)
+    - **Returns:** Auth token or error
+
+### 5. Payments Router (`/api/payments`)
+- **Endpoints:**
+  - `GET /api/payments/list` - List payments
+    - **Params:** Optional query params (user, date)
+    - **Returns:** JSON array of payments
+  - `POST /api/payments/create` - Create payment
+    - **Params:** JSON body (payment details)
+    - **Returns:** Payment object or error
+
+### 6. Roles Router (`/api/roles`)
+- **Endpoints:**
+  - `GET /api/roles/list` - List roles
+    - **Params:** None
+    - **Returns:** JSON array of roles
+  - `POST /api/roles/create` - Create role
+    - **Params:** JSON body (role details)
+    - **Returns:** Role object or error
+
+### 7. Rooms Router (`/api/rooms`)
+- **Endpoints:**
+  - `GET /api/rooms/list` - List rooms
+    - **Params:** Optional query params (type, availability)
+    - **Returns:** JSON array of rooms
+  - `POST /api/rooms/create` - Create room
+    - **Params:** JSON body (room details)
+    - **Returns:** Room object or error
+
+### 8. Users Router (`/api/users`)
+- **Endpoints:**
+  - `GET /api/users/list` - List users
+    - **Params:** None
+    - **Returns:** JSON array of users
+  - `POST /api/users/create` - Create user
+    - **Params:** JSON body (user details)
+    - **Returns:** User object or error
+  - `POST /api/users/google-auth` - Google authentication
+    - **Params:** JSON body (Google token)
+    - **Returns:** Auth token or error
+
+### 9. Reports Router (`/api/reports`)
+- **Endpoints:**
+  - `GET /api/reports/metrics` - Prometheus metrics
+    - **Params:** None
+    - **Returns:** Metrics data (text/plain)
+
+## Return Types
+- All endpoints return JSON objects unless specified (metrics endpoint returns text/plain).
+- Error responses follow FastAPI's standard error format with status code and detail.
+
+## Environment Configuration
+Create a `.env` file with the following variables:
+```
+MYSQL_HOST=your_mysql_host
+MYSQL_PORT=your_mysql_port
+MYSQL_USER=your_mysql_user
+MYSQL_PASSWORD=your_mysql_password
+MYSQL_DATABASE=your_database_name
+ALLOWED_ORIGINS=http://localhost:3000,http://your-frontend-domain
+PROMETHEUS_ENABLED=true LOG_LEVEL=INFO
+```
+- Adjust values as needed for your environment.
+- For Railway.app, set these variables in the Railway environment settings.
+
+## Local Setup
+1. **Clone the repository:**
+```bash
+git clone https://github.com/your-org/tww-service.git
+cd tww-service
+```
+
+2. **Create and activate virtual environment:**
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
+
+3. **Install dependencies:**
+```bash
+pip install -r requirements.txt
+```
+
+4. **Configure .env file:**
+```
+- Copy `.env.example` to `.env` and fill in your values.
+```
+
+5. **Run the application:**
+```bash
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+6. **Access API:**
+   - Open [http://localhost:8000/docs](http://localhost:8000/docs) for Swagger UI.
+
+## Deploy on Railway.app
+1. **Import your repository into Railway.**
+2. **Set environment variables:**
+   - Go to project settings > Variables, add all required `.env` keys.
+3. **Configure service:**
+   - Set start command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+4. **Deploy:**
+   - Railway will build and deploy automatically.
+5. **Access API:**
+   - Use the Railway-provided domain to access your API and docs.
+
+## Additional Notes
+- Ensure your MySQL database is accessible from Railway (use Railway's built-in database or configure external access).
+- Update CORS origins in `.env` to match your frontend domain.
+- For metrics, enable Prometheus in `.env` and access `/api/reports/metrics`.
+
+---
+For further details, refer to the codebase and router modules for specific parameter and response structures.
+
+## Monitoring
+- Access Prometheus metrics at `/api/reports/metrics`.
+- Use Grafana for visualization.
+
+## Contributing
+- Fork the repository.
+- Create a new branch.
+- Submit a pull request.
+
+## Notes
+- This service is designed to integrate seamlessly with the ReactJS frontend project available at https://github.com/tww-kookal/tww-booking, enabling full connectivity between the backend and the provided user interface.
+- The frontend project is a ReactJS application that consumes the API endpoints provided by this service.
+- The frontend project is available at https://github.com/tww-kookal/tww-booking.
+
+## License
+- MIT License. See `LICENSE` file for details.

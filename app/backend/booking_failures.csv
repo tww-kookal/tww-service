@@ -1,0 +1,4 @@
+﻿slno,room_id,customer_name,phone,number_of_people,check_in,check_out,booking_date,status,source_of_booking,room_price,advance_payment,food_price,service_price,total_price,commission,balance_to_pay,remarks,advance_paid_to,is_commission_settled,is_final_price_paid,balance_paid_to,is_balance_paid,customer_status,source_of_booking_status,advance_paid_to_status,balance_paid_to_status,over_all_status
+Cedar,1,Madhan kumar,9962978910,2,2025-04-26,2025-04-27,,Confirmed,viji eagle woods,10000,2000,5115,,15115,,13115,,Anika,,,Anika,,PASSED,FAILED,FAILED,FAILED,FAILED
+Teak,3,Madhan kumar,9962978910,2,2025-04-27,2025-04-29,,Confirmed,viji eagle woods,8000,,,,8000,,8000,,,,,,,PASSED,FAILED,FAILED,FAILED,FAILED
+Maple,4,Madhan kumar,9962978910,2,2025-04-27,2025-04-29,,Confirmed,viji eagle woods,8000,,,,8000,,8000,due to Gst we reduced 3000 rupees,,,,,,PASSED,FAILED,FAILED,FAILED,FAILED
