@@ -49,7 +49,13 @@ logger.debug(f"Database Host: {settings.LOG_LEVEL}")
 #Incorporate Rate Limiter
 limiter = Limiter(key_func=get_remote_address)
 
-app = FastAPI()
+app = FastAPI(
+    title="The Westwood Booking API",
+    version="1.0.0",
+    docs_url="/api/v1/docs",
+    redoc_url="/api/v1/redoc",
+    openapi_url="/api/v1/openapi.json",
+)
 
 # Register exception handler
 app.state.limiter = limiter
@@ -62,7 +68,10 @@ Instrumentator().instrument(
 ######## Add CORS Error
 app.add_middleware(
   CORSMiddleware,
-  allow_origins=["http://localhost:5173","https://tww-kookal.github.io"],
+  allow_origins=["http://localhost:5173", 
+                 "https://tww-kookal.github.io", 
+                 "https://bookingstage.thewestwood.in", 
+                 "https://booking.thewestwood.in"],  # Allowed origins
   allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],  # HTTP methods
   allow_headers=["*"],
   expose_headers=["*"],
@@ -80,3 +89,12 @@ app.include_router(reports.router)
 app.include_router(booking.router)
 app.include_router(payments.router)
 app.include_router(accounting.router)
+
+@app.get("/")
+def root():
+    return {
+        "application": "The Westwood Booking API",
+        "version": "1.0.0",
+        "docs": "/api/v1/docs",
+        "api_prefix": "/api/v1",
+    }
