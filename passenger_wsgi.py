@@ -1,8 +1,12 @@
 import sys
 import os
 
-# Add the project root directory to the python path
-sys.path.insert(0, os.path.dirname(__file__))
+# Get the directory where passenger_wsgi.py is located
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, current_dir)
+
+# Force the working directory to match your app root
+os.chdir(current_dir)
 
 # Import the adapter
 from a2wsgi import ASGIMiddleware
