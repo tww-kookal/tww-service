@@ -9,6 +9,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from .config.config import settings
+from .data.database import connection_pool
 
 ### Logger Settings ###
 # ANSI escape codes for colors
@@ -113,6 +114,12 @@ app = FastAPI(
     openapi_url="/api/v1/openapi.json",
 )
 
+@app.on_event("shutdown")
+async def shutdown_db_client():
+    if connection_pool:
+        connection_pool.close()
+        logger.info("Database connection pool closed.")
+
 # Register exception handler
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
@@ -126,8 +133,9 @@ app.add_middleware(
   CORSMiddleware,
   allow_origins=["http://localhost:5173", 
                  "https://tww-kookal.github.io", 
+                 "https://backoffice.thewestwood.in",
                  "https://backofficestage.thewestwood.in", 
-                 "https://backoffice.thewestwood.in"],  # Allowed origins
+                ],  # Allowed origins
   allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],  # HTTP methods
   allow_headers=["*"],
   expose_headers=["*"],

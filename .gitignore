@@ -5,3 +5,8 @@ __pycache__/
 .env
 .coverage
 .vscode/
+.stage/
+logs/
+sql/
+.env.*
+sql/backup-from-rr.sql
